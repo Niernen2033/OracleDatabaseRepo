@@ -48,7 +48,7 @@ namespace OracleDatabaseProject
             }
             catch (Exception exc)
             {
-                DebugManager.Instance.Log("Class 'XmlManager' in 'Load' function:" + exc.ToString());
+                DebugManager.Instance.Print("Class 'XmlManager' in 'Load' function:" + exc.ToString(), null);
                 instance = default(T);
                 return false;
             }
@@ -89,7 +89,7 @@ namespace OracleDatabaseProject
             }
             catch (Exception exc)
             {
-                DebugManager.Instance.Log("Class 'XmlManager' in 'Save' function:" + exc.ToString());
+                DebugManager.Instance.Print("Class 'XmlManager' in 'Save' function:" + exc.ToString(), null);
                 return false;
             }
         }
@@ -108,7 +108,7 @@ namespace OracleDatabaseProject
             }
             catch (Exception exc)
             {
-                DebugManager.Instance.Log("Class 'XmlManager' in 'GetCryptoTransform' function: " + exc.ToString());
+                DebugManager.Instance.Print("Class 'XmlManager' in 'GetCryptoTransform' function: " + exc.ToString(), null);
                 return null;
             }
 
@@ -140,7 +140,7 @@ namespace OracleDatabaseProject
             }
             catch (Exception exc)
             {
-                DebugManager.Instance.Log("Class 'XmlManager' in 'GetCryptoTransform' function: " + exc.ToString());
+                DebugManager.Instance.Print("Class 'XmlManager' in 'GetCryptoTransform' function: " + exc.ToString(), null);
                 return null;
             }
 

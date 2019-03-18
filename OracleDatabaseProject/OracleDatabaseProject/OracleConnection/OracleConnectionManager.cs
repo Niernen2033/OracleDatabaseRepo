@@ -43,13 +43,24 @@ namespace OracleDatabaseProject
         public OracleConnectionManager()
         {
             this.m_connection = new OracleConnection();
+            //DebugManager.Instance.RegisterToDisabledList(this);
         }
 
-        public bool OpenLongConnection(string userId, string userPassword, string host, ushort port, string serviceName)
+        public Task<bool> OpenConnectionAsync(string userId, string userPassword, string host, ushort port, string serviceName)
+        {
+            return Task.Run(() => this.OpenConnection(userId, userPassword, host, port, serviceName));
+        }
+
+        public Task<bool> OpenConnectionAsync(OracleConnectionData oracleConnectionData)
+        {
+            return Task.Run(() => this.OpenConnection(oracleConnectionData));
+        }
+
+        public bool OpenConnection(string userId, string userPassword, string host, ushort port, string serviceName)
         {
             if(this.m_connection.State != ConnectionState.Closed)
             {
-                return false;
+                return true;
             }
 
             OracleConnectionStringBuilder ocsb = new OracleConnectionStringBuilder();
@@ -57,43 +68,38 @@ namespace OracleDatabaseProject
             ocsb.Password = userPassword;
             ocsb.DataSource = host + ":" + port.ToString() + "/" + serviceName;
             this.m_connection.ConnectionString = ocsb.ConnectionString;
+
             try
             {
                 this.m_connection.Open();
             }
             catch(Exception exc)
             {
-                DebugManager.Instance.Log(exc.Message);
+                DebugManager.Instance.Print(exc.Message, this);
                 return false;
             }
-            DebugManager.Instance.Log("Connection established (" + this.m_connection.ServerVersion + ")");
+            DebugManager.Instance.Print("Connection established (" + this.m_connection.ServerVersion + ")", this);
             return true;
         }
 
-        public bool OpenLongConnection(OracleConnectionData oracleConnectionData)
+        public bool OpenConnection(OracleConnectionData oracleConnectionData)
         {
-            return this.OpenLongConnection(oracleConnectionData.UserID, oracleConnectionData.Password, oracleConnectionData.Host, oracleConnectionData.Port, oracleConnectionData.ServiceName);
+            return this.OpenConnection(oracleConnectionData.UserID, oracleConnectionData.Password, oracleConnectionData.Host, oracleConnectionData.Port, oracleConnectionData.ServiceName);
         }
 
         public bool CloseConnection(ushort waitTimeInSec = 0)
         {
             if(!this.IsOpen)
             {
-                this.m_connection.Dispose();
                 return true;
             }
             if(this.IsBusy && waitTimeInSec > 0)
             {
                 Stopwatch timer = new Stopwatch();
                 timer.Start();
-                while (true)
+                while (this.IsBusy)
                 {
                     timer.Stop();
-                    if(!this.IsBusy)
-                    {
-                        break;
-                    }
-
                     if (timer.ElapsedMilliseconds > (waitTimeInSec*1000))
                     {
                         break;
@@ -105,7 +111,20 @@ namespace OracleDatabaseProject
                 }
             }
             this.m_connection.Close();
-            this.m_connection.Dispose();
+            return true;
+        }
+
+        public bool CreateTable()
+        {
+            if(!this.IsOpen)
+            {
+                return false;
+            }
+            using (OracleCommand cmd = new OracleCommand("create table footable(foocolum number)", this.m_connection))
+            {
+                int result = cmd.ExecuteNonQuery();
+                DebugManager.Instance.Print(result.ToString(), this);
+            }
             return true;
         }
 

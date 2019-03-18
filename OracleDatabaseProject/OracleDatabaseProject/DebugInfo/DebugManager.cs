@@ -15,7 +15,8 @@ namespace OracleDatabaseProject
 
         //normal variables
         private bool m_available;
-        private ListBox m_list_box;
+        private ListBox m_info_panel;
+        private List<object> m_debug_disabled_objects;
 
         public static DebugManager Instance
         {
@@ -38,18 +39,18 @@ namespace OracleDatabaseProject
         private DebugManager()
         {
             this.m_available = false;
-            this.m_list_box = null;
+            this.m_info_panel = null;
+#if DEBUG_MANAGER
+            this.m_debug_disabled_objects = new List<object>();
+#else //DEBUG_MANAGER
+            this.m_debug_disabled_objects = null;
+#endif //DEBUG_MANAGER
         }
 
-        public void Log(string info)
+        public void Enable(ref ListBox infoPanel)
         {
-            if (this.m_available)
-            {
-                if (this.m_list_box != null)
-                {
-                    this.m_list_box.Items.Add(info);
-                }
-            }
+            this.m_available = true;
+            this.m_info_panel = infoPanel;
         }
 
         public void Enable()
@@ -57,14 +58,79 @@ namespace OracleDatabaseProject
             this.m_available = true;
         }
 
-        public void SetInfoList(ref ListBox listBox)
+        public void SetInfoPanel(ref ListBox infoPanel)
         {
-            this.m_list_box = listBox;
+            this.m_info_panel = infoPanel;
+        }
+
+        public void RegisterToDisabledList(object source)
+        {
+#if DEBUG_MANAGER
+            if (source == null || this.m_debug_disabled_objects.Contains(source))
+            {
+                return;
+            }
+            this.m_debug_disabled_objects.Add(source);
+#endif //DEBUG_MANAGER
+        }
+
+        public void UnregisterFromDisabledList(object source)
+        {
+#if DEBUG_MANAGER
+            if (source == null)
+            {
+                return;
+            }
+            this.m_debug_disabled_objects.Remove(source);
+#endif //DEBUG_MANAGER
+        }
+
+        public void Print(string info, object source)
+        {
+#if DEBUG_MANAGER
+            if(this.m_debug_disabled_objects.Count > 0)
+            {
+                if(!this.m_debug_disabled_objects.Contains(source))
+                {
+                    if (this.CanIPrintDebugInfo())
+                    {
+                        //this.m_info_panel.Items.Add(info);
+                        this.m_info_panel.Invoke(new Action(delegate ()
+                        {
+                            this.m_info_panel.Items.Add(info);
+                        }));
+                    }
+                }
+            }
+            else
+            {
+                if (this.CanIPrintDebugInfo())
+                {
+                    //this.m_info_panel.Items.Add(info);
+                    this.m_info_panel.Invoke(new Action(delegate ()
+                    {
+                        this.m_info_panel.Items.Add(info);
+                    }));
+                }
+            }
+#endif //DEBUG_MANAGER
         }
 
         public void Disable()
         {
             this.m_available = false;
+        }
+
+        private bool CanIPrintDebugInfo()
+        {
+            if(this.m_available && this.m_info_panel != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
