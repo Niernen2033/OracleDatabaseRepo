@@ -22,5 +22,14 @@ namespace OracleDatabaseProject
             this.Port = 0;
             this.ServiceName = string.Empty;
         }
+
+        public OracleConnectionData(ref OracleConnectionData other)
+        {
+            this.UserID = string.Copy(other.UserID);
+            this.Password = string.Copy(other.Password);
+            this.Host = string.Copy(other.Host);
+            this.Port = other.Port;
+            this.ServiceName = string.Copy(other.ServiceName);
+        }
     }
 }

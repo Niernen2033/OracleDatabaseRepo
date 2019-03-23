@@ -1,0 +1,10 @@
+    Click File › Data Modeler › Import › Data Dictionary.
+    Select a DB connection (add one if none).
+    Click Next.
+    Check one or more schema names.
+    Click Next.
+    Check one or more objects to import.
+    Click Next.
+    Click Finish.
+
+ER diagram

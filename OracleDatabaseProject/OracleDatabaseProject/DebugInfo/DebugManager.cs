@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 using System.Windows.Forms;
+using System.Collections.ObjectModel;
 
 namespace OracleDatabaseProject
 {
@@ -14,9 +16,19 @@ namespace OracleDatabaseProject
         private static readonly object m_padlock = new object();
 
         //normal variables
+#if DEBUG_MANAGER
         private bool m_available;
-        private ListBox m_info_panel;
+        private List<string> m_info_data;
         private List<object> m_debug_disabled_objects;
+#endif //DEBUG_MANAGER
+
+        public event EventHandler<DebugEventArgs> InfoLogAdded;
+
+#if DEBUG_MANAGER
+        public ReadOnlyCollection<string> GetInfoData { get { return this.m_info_data.AsReadOnly(); } }
+#else //DEBUG_MANAGER
+        public List<string> GetInfoData { get { return new List<string>(); } }
+#endif //DEBUG_MANAGER
 
         public static DebugManager Instance
         {
@@ -38,29 +50,41 @@ namespace OracleDatabaseProject
 
         private DebugManager()
         {
-            this.m_available = false;
-            this.m_info_panel = null;
 #if DEBUG_MANAGER
+            this.m_available = false;
             this.m_debug_disabled_objects = new List<object>();
-#else //DEBUG_MANAGER
-            this.m_debug_disabled_objects = null;
+            this.m_info_data = new List<string>();
 #endif //DEBUG_MANAGER
         }
 
-        public void Enable(ref ListBox infoPanel)
+        private void OnInfoLogAdded(DebugEventArgs e)
         {
-            this.m_available = true;
-            this.m_info_panel = infoPanel;
+#if DEBUG_MANAGER
+            this.InfoLogAdded.Invoke(this, e);
+#else //DEBUG_MANAGER
+            return;
+#endif //DEBUG_MANAGER
         }
 
         public void Enable()
         {
+#if DEBUG_MANAGER
             this.m_available = true;
+#else //DEBUG_MANAGER
+            return;
+#endif //DEBUG_MANAGER
         }
 
-        public void SetInfoPanel(ref ListBox infoPanel)
+        public void ClearInfoPanel()
         {
-            this.m_info_panel = infoPanel;
+#if DEBUG_MANAGER
+            if(this.m_info_data != null)
+            {
+                this.m_info_data.Clear();
+            }
+#else //DEBUG_MANAGER
+            return;
+#endif //DEBUG_MANAGER
         }
 
         public void RegisterToDisabledList(object source)
@@ -71,6 +95,8 @@ namespace OracleDatabaseProject
                 return;
             }
             this.m_debug_disabled_objects.Add(source);
+#else //DEBUG_MANAGER
+            return;
 #endif //DEBUG_MANAGER
         }
 
@@ -82,48 +108,71 @@ namespace OracleDatabaseProject
                 return;
             }
             this.m_debug_disabled_objects.Remove(source);
+#else //DEBUG_MANAGER
+            return;
 #endif //DEBUG_MANAGER
         }
 
-        public void Print(string info, object source)
+        public void AddLog(string info, object source)
         {
 #if DEBUG_MANAGER
-            if(this.m_debug_disabled_objects.Count > 0)
+            if (!this.m_debug_disabled_objects.Contains(source))
             {
-                if(!this.m_debug_disabled_objects.Contains(source))
+                if (this.CanIStoreDebugInfo())
                 {
-                    if (this.CanIPrintDebugInfo())
-                    {
-                        //this.m_info_panel.Items.Add(info);
-                        this.m_info_panel.Invoke(new Action(delegate ()
-                        {
-                            this.m_info_panel.Items.Add(info);
-                        }));
-                    }
+                    this.m_info_data.Add(source.ToString() + "[" + DateTime.Now.ToLongTimeString() + "] => " + info);
+                    DebugEventArgs eventArgs = new DebugEventArgs(this.m_info_data[this.m_info_data.Count - 1]);
+                    this.OnInfoLogAdded(eventArgs);
                 }
             }
-            else
-            {
-                if (this.CanIPrintDebugInfo())
-                {
-                    //this.m_info_panel.Items.Add(info);
-                    this.m_info_panel.Invoke(new Action(delegate ()
-                    {
-                        this.m_info_panel.Items.Add(info);
-                    }));
-                }
-            }
+#else //DEBUG_MANAGER
+            return;
 #endif //DEBUG_MANAGER
         }
 
         public void Disable()
         {
+#if DEBUG_MANAGER
             this.m_available = false;
+#else //DEBUG_MANAGER
+            return;
+#endif //DEBUG_MANAGER
         }
 
-        private bool CanIPrintDebugInfo()
+        public void Save(string savePath)
         {
-            if(this.m_available && this.m_info_panel != null)
+#if DEBUG_MANAGER
+            try
+            {
+                using (StreamWriter writer = new StreamWriter(savePath))
+                {
+                    foreach(string infoLog in this.m_info_data)
+                    {
+                        try
+                        {
+                            writer.WriteLine(infoLog);
+                        }
+                        catch(Exception exc)
+                        {
+                            MessageBox.Show(exc.Message);
+                            break;
+                        }
+                    }
+                }
+            }
+            catch(Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }
+#else //DEBUG_MANAGER
+            return;
+#endif //DEBUG_MANAGER
+        }
+
+        private bool CanIStoreDebugInfo()
+        {
+#if DEBUG_MANAGER
+            if (this.m_available && this.m_info_data != null)
             {
                 return true;
             }
@@ -131,6 +180,19 @@ namespace OracleDatabaseProject
             {
                 return false;
             }
+#else //DEBUG_MANAGER
+            return true;
+#endif //DEBUG_MANAGER
+        }
+    }
+
+    sealed class DebugEventArgs : EventArgs
+    {
+        public string Log { get; private set; }
+
+        public DebugEventArgs(string log)
+        {
+            this.Log = log;
         }
     }
 }

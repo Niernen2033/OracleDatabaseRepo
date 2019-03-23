@@ -12,6 +12,7 @@ namespace OracleDatabaseProject
     sealed class OracleConnectionManager : IDisposable
     {
         private OracleConnection m_connection;
+        private OracleConnectionData m_connectionData;
 
         public bool IsOpen
         {
@@ -43,6 +44,7 @@ namespace OracleDatabaseProject
         public OracleConnectionManager()
         {
             this.m_connection = new OracleConnection();
+            this.m_connectionData = null;
             //DebugManager.Instance.RegisterToDisabledList(this);
         }
 
@@ -54,6 +56,29 @@ namespace OracleDatabaseProject
         public Task<bool> OpenConnectionAsync(OracleConnectionData oracleConnectionData)
         {
             return Task.Run(() => this.OpenConnection(oracleConnectionData));
+        }
+
+        public Task<bool> OpenConnectionAsync()
+        {
+            if(this.m_connectionData == null)
+            {
+                return Task.FromResult<bool>(false);
+            }
+            return Task.Run(() => this.OpenConnection(this.m_connectionData));
+        }
+
+        public void SetConnectionData(OracleConnectionData oracleConnectionData)
+        {
+            this.m_connectionData = new OracleConnectionData(ref oracleConnectionData);
+        }
+
+        public bool OpenConnection()
+        {
+            if(this.m_connectionData == null)
+            {
+                return false;
+            }
+            return this.OpenConnection(this.m_connectionData);
         }
 
         public bool OpenConnection(string userId, string userPassword, string host, ushort port, string serviceName)
@@ -75,10 +100,10 @@ namespace OracleDatabaseProject
             }
             catch(Exception exc)
             {
-                DebugManager.Instance.Print(exc.Message, this);
+                DebugManager.Instance.AddLog(exc.Message, this);
                 return false;
             }
-            DebugManager.Instance.Print("Connection established (" + this.m_connection.ServerVersion + ")", this);
+            DebugManager.Instance.AddLog("Connection established (" + this.m_connection.ServerVersion + ")", this);
             return true;
         }
 
@@ -95,37 +120,97 @@ namespace OracleDatabaseProject
             }
             if(this.IsBusy && waitTimeInSec > 0)
             {
-                Stopwatch timer = new Stopwatch();
-                timer.Start();
-                while (this.IsBusy)
-                {
-                    timer.Stop();
-                    if (timer.ElapsedMilliseconds > (waitTimeInSec*1000))
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        timer.Start();
-                    }
-                }
+                this.BusyStatusWait(waitTimeInSec);
             }
             this.m_connection.Close();
             return true;
         }
 
-        public bool CreateTable()
+        private void BusyStatusWait(ushort waitTimeInSec)
         {
+            if(waitTimeInSec == 0)
+            {
+                return;
+            }
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
+            while (this.IsBusy)
+            {
+                timer.Stop();
+                if (timer.ElapsedMilliseconds > (waitTimeInSec * 1000))
+                {
+                    break;
+                }
+                else
+                {
+                    timer.Start();
+                }
+            }
+        }
+
+        public bool ExecuteCommand(string comm, ushort maxExecuteTimeInSec = 0)
+        {
+            bool isThisFunctionOpenConnection = false;
             if(!this.IsOpen)
             {
+                if(this.m_connectionData == null)
+                {
+                    return false;
+                }
+                if(!this.OpenConnection(this.m_connectionData))
+                {
+                    return false;
+                }
+                else
+                {
+                    DebugManager.Instance.AddLog("Opening connection in executeCommand", this);
+                    isThisFunctionOpenConnection = true;
+                }
+            }
+
+            if (this.IsBusy)
+            {
+                this.BusyStatusWait(maxExecuteTimeInSec);
+                if (this.IsBusy)
+                {
+                    if (isThisFunctionOpenConnection)
+                    {
+                        this.CloseConnection();
+                    }
+                    return false;
+                }
+            }
+
+            int result = 0;
+            try
+            {
+                using (OracleCommand cmd = new OracleCommand(comm, this.m_connection))
+                {
+                    result = cmd.ExecuteNonQuery();
+                }
+            }
+            catch(Exception exc)
+            {
+                DebugManager.Instance.AddLog(exc.Message, this);
+                if (isThisFunctionOpenConnection)
+                {
+                    this.CloseConnection();
+                }
                 return false;
             }
-            using (OracleCommand cmd = new OracleCommand("create table footable(foocolum number)", this.m_connection))
+            DebugManager.Instance.AddLog("Command result: " + result, this);
+            if (isThisFunctionOpenConnection)
             {
-                int result = cmd.ExecuteNonQuery();
-                DebugManager.Instance.Print(result.ToString(), this);
+                DebugManager.Instance.AddLog("Closing because of one time open", this);
+                this.CloseConnection();
             }
+            
             return true;
+        }
+
+        public Task<bool> ExecuteCommandAsync(string comm, ushort maxExecuteTimeInSec = 0)
+        {
+            return Task.Run(() => this.ExecuteCommand(comm, maxExecuteTimeInSec));
         }
 
         public void Dispose()
