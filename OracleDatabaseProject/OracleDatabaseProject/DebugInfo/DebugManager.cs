@@ -18,6 +18,10 @@ namespace OracleDatabaseProject
         //normal variables
 #if DEBUG_MANAGER
         private bool m_available;
+        private bool m_is_saving_enabled;
+        private ushort m_save_logs_count_needed;
+        private ushort m_save_logs_count;
+        private string m_save_logs_path;
         private List<string> m_info_data;
         private List<object> m_debug_disabled_objects;
 #endif //DEBUG_MANAGER
@@ -51,6 +55,10 @@ namespace OracleDatabaseProject
         private DebugManager()
         {
 #if DEBUG_MANAGER
+            this.m_is_saving_enabled = false;
+            this.m_save_logs_path = string.Empty;
+            this.m_save_logs_count_needed = 1;
+            this.m_save_logs_count = 0;
             this.m_available = false;
             this.m_debug_disabled_objects = new List<object>();
             this.m_info_data = new List<string>();
@@ -121,8 +129,16 @@ namespace OracleDatabaseProject
                 if (this.CanIStoreDebugInfo())
                 {
                     this.m_info_data.Add(source.ToString() + "[" + DateTime.Now.ToLongTimeString() + "] => " + info);
+
                     DebugEventArgs eventArgs = new DebugEventArgs(this.m_info_data[this.m_info_data.Count - 1]);
                     this.OnInfoLogAdded(eventArgs);
+
+                    this.m_save_logs_count++;
+                    if(this.m_save_logs_count == this.m_save_logs_count_needed)
+                    {
+                        this.SaveLogs();
+                        this.m_save_logs_count = 0;
+                    }
                 }
             }
 #else //DEBUG_MANAGER
@@ -139,12 +155,61 @@ namespace OracleDatabaseProject
 #endif //DEBUG_MANAGER
         }
 
-        public void Save(string savePath)
+        public void EnableLogsSaving(string savePath, ushort logsCountPerSave = 1)
+        {
+#if DEBUG_MANAGER
+            this.m_is_saving_enabled = true;
+            this.m_save_logs_count_needed = logsCountPerSave;
+            if(this.m_save_logs_count_needed == 0)
+            {
+                this.m_save_logs_count_needed = 1;
+            }
+            this.m_save_logs_count = 0;
+            this.m_save_logs_path = savePath;
+#else //DEBUG_MANAGER
+            return;
+#endif //DEBUG_MANAGER
+        }
+
+        public void DisableLogsSaving()
+        {
+#if DEBUG_MANAGER
+            this.m_is_saving_enabled = false;
+            this.m_save_logs_count_needed = 1;
+            this.m_save_logs_count = 0;
+            this.m_save_logs_path = string.Empty;
+#else //DEBUG_MANAGER
+            return;
+#endif //DEBUG_MANAGER
+        }
+
+        private void SaveLogs()
         {
 #if DEBUG_MANAGER
             try
             {
-                using (StreamWriter writer = new StreamWriter(savePath))
+                if (!Directory.Exists(Path.GetDirectoryName(this.m_save_logs_path)))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(this.m_save_logs_path));
+                    }
+                    catch(Exception exc)
+                    {
+                        MessageBox.Show(exc.Message);
+                        return;
+                    }
+                }
+            }
+            catch(Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+                return;
+            }
+
+            try
+            {
+                using (StreamWriter writer = new StreamWriter(this.m_save_logs_path))
                 {
                     foreach(string infoLog in this.m_info_data)
                     {
@@ -155,7 +220,7 @@ namespace OracleDatabaseProject
                         catch(Exception exc)
                         {
                             MessageBox.Show(exc.Message);
-                            break;
+                            return;
                         }
                     }
                 }

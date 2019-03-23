@@ -163,7 +163,7 @@ namespace OracleDatabaseProject
                 }
                 else
                 {
-                    DebugManager.Instance.AddLog("Opening connection in executeCommand", this);
+                    DebugManager.Instance.AddLog("ExecuteCommand connection is open", this);
                     isThisFunctionOpenConnection = true;
                 }
             }
@@ -201,7 +201,7 @@ namespace OracleDatabaseProject
             DebugManager.Instance.AddLog("Command result: " + result, this);
             if (isThisFunctionOpenConnection)
             {
-                DebugManager.Instance.AddLog("Closing because of one time open", this);
+                DebugManager.Instance.AddLog("ExecuteCommand : close connection", this);
                 this.CloseConnection();
             }
             

@@ -18,6 +18,7 @@ namespace OracleDatabaseProject
         {
             InitializeComponent();
             DebugManager.Instance.Enable();
+            DebugManager.Instance.EnableLogsSaving(GlobalVariables.DebugInfoLogsDirectory + "debugLog.txt", 1);
 
             this.connectionManager = new OracleConnectionManager();
 
@@ -43,7 +44,6 @@ namespace OracleDatabaseProject
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.connectionManager.Dispose();
-            DebugManager.Instance.Save(GlobalVariables.DebugInfoLogsDirectory + "debugLog.txt");
         }
 
         private void DisableButtons(params Button[] buttons)
@@ -81,10 +81,21 @@ namespace OracleDatabaseProject
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            string command = this.richTextBox1.Text;
-            DebugManager.Instance.AddLog(command, this);
-            bool status = await this.connectionManager.ExecuteCommandAsync(command);
-            DebugManager.Instance.AddLog(status.ToString(), this);
+            string[] commands = this.richTextBox1.Text.Split(';');
+            foreach (string command in commands)
+            {
+                if(command.Length < 4)
+                {
+                    continue;
+                }
+                bool status = await this.connectionManager.ExecuteCommandAsync(command);
+                DebugManager.Instance.AddLog(status.ToString(), this);
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.listBox1.Items.Clear();
         }
     }
 }
