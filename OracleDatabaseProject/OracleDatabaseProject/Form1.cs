@@ -79,15 +79,59 @@ namespace OracleDatabaseProject
             this.EnableButtons(this.button_ODBconnect, this.button_ODBdisconnect);
         }
 
+        private bool IsStringContainCommand(string data)
+        {
+            if (data.Contains("CREATE") || data.Contains("DROP")
+                || data.Contains("__COMMNADS_END__"))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private List<string> ReadCommands(string data)
+        {
+            List<string> result = new List<string>();
+            List<string> allLines = data.Split('\n').ToList();
+            allLines.Add("__COMMNADS_END__");
+
+            string command = string.Empty;
+            for (int i = 0; i < allLines.Count; i++)
+            {
+                if (this.IsStringContainCommand(command) && this.IsStringContainCommand(allLines[i]))
+                {
+                    if (!command.Contains("END;"))
+                    {
+                        if (command.Length > 5)
+                        {
+                            int semiIndex = 0;
+                            while (true)
+                            {
+                                semiIndex++;
+                                string commandEnd = command.Substring(command.Length - semiIndex, semiIndex);
+                                if (commandEnd.Contains(";"))
+                                {
+                                    break;
+                                }
+                            }
+                            command = command.Substring(0, command.Length - semiIndex);
+                        }
+                    }
+                    result.Add(command);
+                    command = string.Empty;
+                }
+                command += allLines[i] + " ";
+            }
+
+            return result;
+        }
+
         private async void button1_Click(object sender, EventArgs e)
         {
-            string[] commands = this.richTextBox1.Text.Split(';');
+            List<string> commands = this.ReadCommands(this.richTextBox1.Text);
             foreach (string command in commands)
             {
-                if(command.Length < 4)
-                {
-                    continue;
-                }
+                DebugManager.Instance.AddLog(command, this);
                 bool status = await this.connectionManager.ExecuteCommandAsync(command);
                 DebugManager.Instance.AddLog(status.ToString(), this);
             }
