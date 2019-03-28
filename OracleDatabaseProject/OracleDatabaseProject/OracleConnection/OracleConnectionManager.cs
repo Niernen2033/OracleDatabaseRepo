@@ -182,6 +182,7 @@ namespace OracleDatabaseProject
             }
 
             int result = 0;
+            DebugManager.Instance.AddLog("Executing: " + comm, this);
             try
             {
                 using (OracleCommand cmd = new OracleCommand(comm, this.m_connection))

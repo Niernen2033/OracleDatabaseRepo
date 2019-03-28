@@ -128,16 +128,24 @@ namespace OracleDatabaseProject
             {
                 if (this.CanIStoreDebugInfo())
                 {
-                    this.m_info_data.Add(source.ToString() + "[" + DateTime.Now.ToLongTimeString() + "] => " + info);
+                    string sourceInfo = "NONE";
+                    if(source != null)
+                    {
+                        sourceInfo = source.ToString().Replace("OracleDatabaseProject.", "");
+                    }
+                    this.m_info_data.Add(sourceInfo + "[" + DateTime.Now.ToLongTimeString() + "] => " + info);
 
                     DebugEventArgs eventArgs = new DebugEventArgs(this.m_info_data[this.m_info_data.Count - 1]);
                     this.OnInfoLogAdded(eventArgs);
 
-                    this.m_save_logs_count++;
-                    if(this.m_save_logs_count == this.m_save_logs_count_needed)
+                    if (this.m_is_saving_enabled)
                     {
-                        this.SaveLogs();
-                        this.m_save_logs_count = 0;
+                        this.m_save_logs_count++;
+                        if (this.m_save_logs_count == this.m_save_logs_count_needed)
+                        {
+                            this.SaveLogs();
+                            this.m_save_logs_count = 0;
+                        }
                     }
                 }
             }

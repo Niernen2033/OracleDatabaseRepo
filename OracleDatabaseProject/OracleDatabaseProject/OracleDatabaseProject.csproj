@@ -56,7 +56,17 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="OracleConnection\OracleConnectionData.cs" />
+    <Compile Include="OracleConnection\Data\Base\Accounts.cs" />
+    <Compile Include="OracleConnection\Data\Base\IInsertCommand.cs" />
+    <Compile Include="OracleConnection\Data\Base\Marks.cs" />
+    <Compile Include="OracleConnection\Data\Base\Students.cs" />
+    <Compile Include="OracleConnection\Data\Base\Subjects.cs" />
+    <Compile Include="OracleConnection\Data\Base\Subjects_Teachers.cs" />
+    <Compile Include="OracleConnection\Data\Base\Teachers.cs" />
+    <Compile Include="OracleConnection\Data\DatabaseManager.cs" />
+    <Compile Include="OracleConnection\Data\DataManager.cs" />
+    <Compile Include="OracleConnection\Data\Base\Groups.cs" />
+    <Compile Include="OracleConnection\Data\OracleConnectionData.cs" />
     <Compile Include="OracleConnection\OracleConnectionManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

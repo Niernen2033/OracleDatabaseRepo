@@ -22,7 +22,7 @@ END;
 CREATE TABLE Subjects
 (
 	subject_id INT NOT NULL PRIMARY KEY,
-    title VARCHAR(20) NOT NULL
+    title VARCHAR(40) NOT NULL
 );
 
 CREATE SEQUENCE seq_Subjects START WITH 1 INCREMENT BY 1 CACHE 100;
@@ -35,9 +35,10 @@ END;
 CREATE TABLE Accounts
 (
 	account_id INT NOT NULL PRIMARY KEY,
-    login VARCHAR(3) NOT NULL,
+    login VARCHAR(30) NOT NULL,
 	password VARCHAR(32) NOT NULL,
     email VARCHAR(30) NOT NULL,
+    is_teacher NUMBER(1,0) NOT NULL,
     create_date DATE NOT NULL
 );
 
@@ -53,6 +54,7 @@ CREATE TABLE Teachers
 	teacher_id INT NOT NULL PRIMARY KEY,
     first_name VARCHAR(20) NOT NULL,
     last_name VARCHAR(20) NOT NULL,
+    professionally_active NUMBER(1,0) NOT NULL,
     account_id INT NOT NULL,
     
     CONSTRAINT account_id_teachers_fk
@@ -72,6 +74,7 @@ CREATE TABLE Students
 	student_id INT NOT NULL PRIMARY KEY,
     first_name VARCHAR(20) NOT NULL,
     last_name VARCHAR(20) NOT NULL,
+    student_index INT NOT NULL,
     account_id INT NOT NULL,
             
     CONSTRAINT account_id_students_fk

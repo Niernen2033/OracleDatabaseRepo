@@ -1,0 +1,7 @@
+SOURCES:
+https://github.com/smashew/NameDatabases
+http://generator.my-addr.com
+https://fauxid.com/tools/fake-email-list
+
+GENERATE EXAMPLES:
+INSERT INTO Accounts VALUES(NULL, 'a','a','e', TO_DATE('2012-07-18', 'YYYY-MM-DD'));

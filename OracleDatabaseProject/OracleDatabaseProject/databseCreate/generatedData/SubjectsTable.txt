@@ -1,0 +1,81 @@
+1;Ancient Literature in Translation
+2;Classical mythology
+3;Observational Astronomy
+4;Cosmology I
+5;Astrophysical plasma and stellar interiors
+6;Animal Behaviour
+7;Molecular Biology
+8;Design and analysis of biological studies
+9;Evolution
+10;Genetics and Developmental Biology
+11;Plant Science
+12;Cell Biology
+13;Human Physiology
+14;Biochemistry
+15;Microbiology and Mycology
+16;International Economics
+17;Poverty and Distribution in Developing Countries
+18;Welfare and trade
+19;Economic Growth
+20;Economic History and Inequality
+21;Mathematics 2: Calculus and Linear Algebra
+22;Introductory Econometrics
+23;Microeconomics and Game Theory
+24;Microeconomics
+25;Public Economics I
+26;Labour Economics
+27;Population Health
+28;Incentives and motivation
+29;Strategic Competition
+30;English Grammar
+31;English Phonetics and Intonation
+32;British Literature
+33;American Literature
+34;British Civilisation
+35;American Civilization
+36;Advanced English Grammar: Syntax and argumentation
+37;Systemic Functional Grammar, introduction
+38;Varieties of English Texts
+39;English Corpus Linguistics
+40;History of the English Language
+41;Semantics and Pragmatics
+42;Translation into English
+43;Accents of English in the British Isles
+44;Contrastive and Learner Language Analysis
+45;Global English
+46;Old English: Language and History
+47;Middle English, introduction
+48;Linguistics and literature in English
+49;English Renaissance Literature
+50;Early 20th Century Literature in English
+51;British Literature in the Age of the Enlightenment
+52;The Romantic Period
+53;The Victorian Period
+54;Late 20th Century Literature in English
+55;Colonial and Postcolonial Literature
+56;Women Writing: Feminist Fiction in English
+57;Homotextuality: Gay and Lesbian Literature
+58;The Short Story in English
+59;Fiction and Film
+60;Shakespeare
+61;Multicultural Literature in English
+62;Nineteenth-Century American Literature
+63;Identities in the British Isles
+64;Britain since 1945
+65;Northern Ireland
+66;The British Constitution
+67;The Green American Tradition
+68;American Exceptionalism
+69;American Politics
+70;American Gender History
+71;Examen philosophicum - English option
+72;Introduction to philosophical methodology
+73;Special topics in philosophy
+74;Philosophical Aesthetics
+75;Philosophy of Action
+76;Major - Theory of cognition
+77;Applied ethics
+78;Normative ethics and metaethics
+79;Political Philosophy
+80;Environmental philosophy
+81;Philosophy of language

@@ -129,17 +129,35 @@ namespace OracleDatabaseProject
         private async void button1_Click(object sender, EventArgs e)
         {
             List<string> commands = this.ReadCommands(this.richTextBox1.Text);
+            this.DisableButtons(this.button1);
             foreach (string command in commands)
             {
-                DebugManager.Instance.AddLog(command, this);
                 bool status = await this.connectionManager.ExecuteCommandAsync(command);
                 DebugManager.Instance.AddLog(status.ToString(), this);
             }
+            this.EnableButtons(this.button1);
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private async void button2_Click(object sender, EventArgs e)
         {
-            this.listBox1.Items.Clear();
+            this.DisableButtons(this.button2);
+            DatabaseManager databaseManager = new DatabaseManager();
+            bool status = databaseManager.LoadDatabaseFromFiles();
+            DebugManager.Instance.AddLog(status.ToString(), this);
+            if(status)
+            {
+                foreach(Accounts gr in databaseManager.GetAccounts)
+                {
+                    string comm = gr.GetInsertString();
+                    bool stat = await this.connectionManager.ExecuteCommandAsync(comm);
+                    if (!stat)
+                    {
+                        DebugManager.Instance.AddLog("exc command fail", this);
+                        break;
+                    }
+                }
+            }
+            this.EnableButtons(this.button2);
         }
     }
 }
