@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OracleDatabaseProject
 {
-    class Subjects_Teachers
+    class Subjects_Teachers : IInsertCommand
     {
         public int subject_id { get; set; }
         public int teacher_id { get; set; }
@@ -22,6 +22,12 @@ namespace OracleDatabaseProject
         public override string ToString()
         {
             return this.subject_id + ";" + this.teacher_id + ";" + this.group_id;
+        }
+
+        public string GetInsertString()
+        {
+            return "INSERT INTO Subjects_Teachers VALUES(" + this.subject_id + ", " + this.teacher_id + ", " +
+                + this.group_id + ")";
         }
     }
 }

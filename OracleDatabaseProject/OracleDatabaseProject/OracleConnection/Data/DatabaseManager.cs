@@ -7,35 +7,47 @@ using System.Collections.ObjectModel;
 
 namespace OracleDatabaseProject
 {
+    class DatabaseData
+    {
+        public List<Accounts> Accounts { get; set; }
+        public List<Groups> Groups { get; set; }
+        public List<Subjects> Subjects { get; set; }
+        public List<Marks> Marks { get; set; }
+        public List<Students> Students { get; set; }
+        public List<Teachers> Teachers { get; set; }
+        public List<Subjects_Teachers> Subjects_Teachers { get; set; }
+
+        public DatabaseData()
+        {
+            this.Accounts = new List<Accounts>();
+            this.Groups = new List<Groups>();
+            this.Marks = new List<Marks>();
+            this.Students = new List<Students>();
+            this.Teachers = new List<Teachers>();
+            this.Subjects = new List<Subjects>();
+            this.Subjects_Teachers = new List<Subjects_Teachers>();
+        }
+
+        public void Clear()
+        {
+            this.Accounts.Clear();
+            this.Groups.Clear();
+            this.Marks.Clear();
+            this.Students.Clear();
+            this.Teachers.Clear();
+            this.Subjects.Clear();
+            this.Subjects_Teachers.Clear();
+        }
+    }
     class DatabaseManager
     {
         private Random random;
-        private List<Accounts> m_accounts;
-        private List<Groups> m_groups;
-        private List<Subjects> m_subjects;
-        private List<Marks> m_marks;
-        private List<Students> m_students;
-        private List<Teachers> m_teachers;
-        private List<Subjects_Teachers> m_subjects_teachers;
-
-        public ReadOnlyCollection<Accounts> GetAccounts { get { return this.m_accounts.AsReadOnly(); } }
-        public ReadOnlyCollection<Groups> GetGroups { get { return this.m_groups.AsReadOnly(); } }
-        public ReadOnlyCollection<Subjects> GetSubjects { get { return this.m_subjects.AsReadOnly(); } }
-        public ReadOnlyCollection<Marks> GetMarks { get { return this.m_marks.AsReadOnly(); } }
-        public ReadOnlyCollection<Students> GetStudents { get { return this.m_students.AsReadOnly(); } }
-        public ReadOnlyCollection<Teachers> GetTeachers { get { return this.m_teachers.AsReadOnly(); } }
-        public ReadOnlyCollection<Subjects_Teachers> GetSubjectsTeachers { get { return this.m_subjects_teachers.AsReadOnly(); } }
+        public DatabaseData DatabaseData { get; private set; }
 
         public DatabaseManager()
         {
             this.random = new Random();
-            this.m_accounts = new List<Accounts>();
-            this.m_groups = new List<Groups>();
-            this.m_marks = new List<Marks>();
-            this.m_students = new List<Students>();
-            this.m_teachers = new List<Teachers>();
-            this.m_subjects = new List<Subjects>();
-            this.m_subjects_teachers = new List<Subjects_Teachers>();
+            this.DatabaseData = new DatabaseData();
         }
 
         private bool GenerateGroups()
@@ -50,7 +62,7 @@ namespace OracleDatabaseProject
                 Groups group = new Groups();
                 group.group_id = i + 1;
                 group.name = _names[i];
-                this.m_groups.Add(group);
+                this.DatabaseData.Groups.Add(group);
             }
             return true;
         }
@@ -67,7 +79,7 @@ namespace OracleDatabaseProject
                 Subjects subject = new Subjects();
                 subject.subject_id = i + 1;
                 subject.title = _titles[i];
-                this.m_subjects.Add(subject);
+                this.DatabaseData.Subjects.Add(subject);
             }
             return true;
         }
@@ -82,39 +94,14 @@ namespace OracleDatabaseProject
             return 0;
         }
 
-        private string GenerateRandomDate()
+        private DateTime GenerateRandomDate(int startYear = 0, int startMonth = 0, int startDay = 0)
         {
-            //'YYYY-MM-DD'
-            string result = string.Empty;
-            int year = this.random.Next(1990, 2020);
-            int month = this.random.Next(1, 13);
-            int day = 0;
-            if (month == 2)
-            {
-                day = this.random.Next(1, 29);
-            }
-            else
-            {
-                day = this.random.Next(1, 31);
-            }
-            result += year.ToString() + "-";
-            if (month < 10)
-            {
-                result += "0" + month.ToString() + "-";
-            }
-            else
-            {
-                result += month.ToString() + "-";
-            }
-            if(day < 10)
-            {
-                result += "0" + day.ToString();
-            }
-            else
-            {
-                result += day.ToString();
-            }
-            return result;
+            int defaultYear = (startYear != 0) ? startYear : 1990;
+            int defaultMonth = (startMonth != 0) ? startMonth : 1;
+            int defaultDay = (startDay != 0) ? startDay : 1;
+            DateTime startDate = new DateTime(defaultYear, defaultMonth, defaultDay);
+            int range = (DateTime.Today - startDate).Days;
+            return startDate.AddDays(this.random.Next(range));
         }
 
         private bool GenerateAccounts(uint count)
@@ -143,8 +130,8 @@ namespace OracleDatabaseProject
                 account.password = _passwords[this.random.Next(0, _passwords.Count)];
                 account.login = _logins[this.random.Next(0, _logins.Count)];
                 account.is_teacher = this.GetTrueWithProb(10);
-                account.create_date = this.GenerateRandomDate();
-                this.m_accounts.Add(account);
+                account.create_date = this.GenerateRandomDate().ToShortDateString();
+                this.DatabaseData.Accounts.Add(account);
             }
 
             return true;
@@ -166,7 +153,7 @@ namespace OracleDatabaseProject
             int students_count = 1;
             int students_index_start = this.random.Next(100000, 110000);
             int teachers_count = 1;
-            foreach (Accounts account in this.m_accounts)
+            foreach (Accounts account in this.DatabaseData.Accounts)
             {
                 if(account.is_teacher == 1)
                 {
@@ -177,7 +164,7 @@ namespace OracleDatabaseProject
                     teacher.professionally_active = this.GetTrueWithProb(65);
                     teacher.last_name = _surnames[this.random.Next(0, _surnames.Count)];
                     teachers_count++;
-                    this.m_teachers.Add(teacher);
+                    this.DatabaseData.Teachers.Add(teacher);
                 }
                 else
                 {
@@ -188,7 +175,7 @@ namespace OracleDatabaseProject
                     student.last_name = _surnames[this.random.Next(0, _surnames.Count)];
                     student.student_index = students_index_start + students_count;
                     students_count++;
-                    this.m_students.Add(student);
+                    this.DatabaseData.Students.Add(student);
                 }
             }
             return true;
@@ -200,11 +187,13 @@ namespace OracleDatabaseProject
             {
                 Marks mark = new Marks();
                 mark.mark_id = i + 1;
-                mark.create_date = this.GenerateRandomDate();
+                mark.student_id = this.random.Next(1, this.DatabaseData.Students.Count + 1);
+                mark.subject_id = this.random.Next(1, this.DatabaseData.Subjects.Count + 1);
                 mark.mark = this.random.Next(2, 6);
-                mark.student_id = this.random.Next(1, this.m_students.Count + 1);
-                mark.subject_id = this.random.Next(1, this.m_subjects.Count + 1);
-                this.m_marks.Add(mark);
+                Accounts account = this.DatabaseData.Accounts[this.DatabaseData.Students[mark.student_id - 1].account_id - 1];
+                DateTime accCreateDate = Convert.ToDateTime(account.create_date);
+                mark.create_date = this.GenerateRandomDate(accCreateDate.Year, accCreateDate.Month, accCreateDate.Day).ToShortDateString();
+                this.DatabaseData.Marks.Add(mark);
             }
             return true;
         }
@@ -235,37 +224,26 @@ namespace OracleDatabaseProject
 
         private bool Generate_Subjects_Teachers()
         {
-            foreach(Teachers teacher in this.m_teachers)
+            foreach(Teachers teacher in this.DatabaseData.Teachers)
             {
                 int subjects_and_groups_teached_count = this.random.Next(1, 4);
-                List<int> subjects_teached_indexes = this.GenerateNumbersWithoutRepetition(subjects_and_groups_teached_count, 1, this.m_subjects.Count);
-                List<int> groups_teached_indexes = this.GenerateNumbersWithoutRepetition(subjects_and_groups_teached_count, 1, this.m_groups.Count);
+                List<int> subjects_teached_indexes = this.GenerateNumbersWithoutRepetition(subjects_and_groups_teached_count, 1, this.DatabaseData.Subjects.Count);
+                List<int> groups_teached_indexes = this.GenerateNumbersWithoutRepetition(subjects_and_groups_teached_count, 1, this.DatabaseData.Groups.Count);
                 for (int i=0; i< subjects_and_groups_teached_count; i++)
                 {
                     Subjects_Teachers subjects_teacher = new Subjects_Teachers();
                     subjects_teacher.teacher_id = teacher.teacher_id;
-                    subjects_teacher.group_id = this.m_groups[groups_teached_indexes[i]].group_id;
-                    subjects_teacher.subject_id = this.m_subjects[subjects_teached_indexes[i]].subject_id;
-                    this.m_subjects_teachers.Add(subjects_teacher);
+                    subjects_teacher.group_id = this.DatabaseData.Groups[groups_teached_indexes[i]].group_id;
+                    subjects_teacher.subject_id = this.DatabaseData.Subjects[subjects_teached_indexes[i]].subject_id;
+                    this.DatabaseData.Subjects_Teachers.Add(subjects_teacher);
                 }
             }
             return true;
         }
 
-        private void ClearData()
-        {
-            this.m_accounts.Clear();
-            this.m_groups.Clear();
-            this.m_marks.Clear();
-            this.m_students.Clear();
-            this.m_teachers.Clear();
-            this.m_subjects.Clear();
-            this.m_subjects_teachers.Clear();
-        }
-
         public bool GenerateDatabase(uint accounts_count, uint marks_count, bool save = false)
         {
-            this.ClearData();
+            this.DatabaseData.Clear();
 
             if(!this.GenerateGroups())
             {
@@ -275,7 +253,7 @@ namespace OracleDatabaseProject
             {
                 if(save)
                 {
-                    if(!DataManager.Save<Groups>(GlobalVariables.GeneratedDataDatabseDirectory + "GroupsTable.txt", this.m_groups))
+                    if(!DataManager.Save<Groups>(GlobalVariables.GeneratedDataDatabseDirectory + "GroupsTable.txt", this.DatabaseData.Groups))
                     {
                         DebugManager.Instance.AddLog("Groups saving error", this);
                     }
@@ -290,7 +268,7 @@ namespace OracleDatabaseProject
             {
                 if (save)
                 {
-                    if (!DataManager.Save<Subjects>(GlobalVariables.GeneratedDataDatabseDirectory + "SubjectsTable.txt", this.m_subjects))
+                    if (!DataManager.Save<Subjects>(GlobalVariables.GeneratedDataDatabseDirectory + "SubjectsTable.txt", this.DatabaseData.Subjects))
                     {
                         DebugManager.Instance.AddLog("Subjects saving error", this);
                     }
@@ -305,7 +283,7 @@ namespace OracleDatabaseProject
             {
                 if (save)
                 {
-                    if (!DataManager.Save<Accounts>(GlobalVariables.GeneratedDataDatabseDirectory + "AccountsTable.txt", this.m_accounts))
+                    if (!DataManager.Save<Accounts>(GlobalVariables.GeneratedDataDatabseDirectory + "AccountsTable.txt", this.DatabaseData.Accounts))
                     {
                         DebugManager.Instance.AddLog("Accounts saving error", this);
                     }
@@ -320,11 +298,11 @@ namespace OracleDatabaseProject
             {
                 if (save)
                 {
-                    if (!DataManager.Save<Students>(GlobalVariables.GeneratedDataDatabseDirectory + "StudentsTable.txt", this.m_students))
+                    if (!DataManager.Save<Students>(GlobalVariables.GeneratedDataDatabseDirectory + "StudentsTable.txt", this.DatabaseData.Students))
                     {
                         DebugManager.Instance.AddLog("Students saving error", this);
                     }
-                    if (!DataManager.Save<Teachers>(GlobalVariables.GeneratedDataDatabseDirectory + "TeachersTable.txt", this.m_teachers))
+                    if (!DataManager.Save<Teachers>(GlobalVariables.GeneratedDataDatabseDirectory + "TeachersTable.txt", this.DatabaseData.Teachers))
                     {
                         DebugManager.Instance.AddLog("Teachers saving error", this);
                     }
@@ -339,7 +317,7 @@ namespace OracleDatabaseProject
             {
                 if (save)
                 {
-                    if (!DataManager.Save<Marks>(GlobalVariables.GeneratedDataDatabseDirectory + "MarksTable.txt", this.m_marks))
+                    if (!DataManager.Save<Marks>(GlobalVariables.GeneratedDataDatabseDirectory + "MarksTable.txt", this.DatabaseData.Marks))
                     {
                         DebugManager.Instance.AddLog("Marks saving error", this);
                     }
@@ -354,7 +332,7 @@ namespace OracleDatabaseProject
             {
                 if (save)
                 {
-                    if (!DataManager.Save<Subjects_Teachers>(GlobalVariables.GeneratedDataDatabseDirectory + "Subjects_TeachersTable.txt", this.m_subjects_teachers))
+                    if (!DataManager.Save<Subjects_Teachers>(GlobalVariables.GeneratedDataDatabseDirectory + "Subjects_TeachersTable.txt", this.DatabaseData.Subjects_Teachers))
                     {
                         DebugManager.Instance.AddLog("Subjects_Teachers saving error", this);
                     }
@@ -366,7 +344,7 @@ namespace OracleDatabaseProject
 
         public bool LoadDatabaseFromFiles()
         {
-            this.ClearData();
+            this.DatabaseData.Clear();
             List<string> temp_data = new List<string>();
 
             //Group *******************************************
@@ -384,7 +362,7 @@ namespace OracleDatabaseProject
                     {
                         group.group_id = int.Parse(table_data[0]);
                         group.name = table_data[1];
-                        this.m_groups.Add(group);
+                        this.DatabaseData.Groups.Add(group);
                     }
                     catch(Exception exc)
                     {
@@ -414,7 +392,7 @@ namespace OracleDatabaseProject
                         account.email = table_data[3];
                         account.is_teacher = int.Parse(table_data[4]);
                         account.create_date = table_data[5];
-                        this.m_accounts.Add(account);
+                        this.DatabaseData.Accounts.Add(account);
                     }
                     catch (Exception exc)
                     {
@@ -443,7 +421,7 @@ namespace OracleDatabaseProject
                         mark.subject_id = int.Parse(table_data[2]);
                         mark.create_date = table_data[3];
                         mark.mark = int.Parse(table_data[4]);
-                        this.m_marks.Add(mark);
+                        this.DatabaseData.Marks.Add(mark);
                     }
                     catch (Exception exc)
                     {
@@ -471,8 +449,8 @@ namespace OracleDatabaseProject
                         student.first_name = table_data[1];
                         student.last_name = table_data[2];
                         student.student_index = int.Parse(table_data[3]);
-                        student.student_id = int.Parse(table_data[4]);
-                        this.m_students.Add(student);
+                        student.account_id = int.Parse(table_data[4]);
+                        this.DatabaseData.Students.Add(student);
                     }
                     catch (Exception exc)
                     {
@@ -499,7 +477,7 @@ namespace OracleDatabaseProject
                         subject_teacher.subject_id = int.Parse(table_data[0]);
                         subject_teacher.teacher_id = int.Parse(table_data[1]);
                         subject_teacher.group_id = int.Parse(table_data[2]);
-                        this.m_subjects_teachers.Add(subject_teacher);
+                        this.DatabaseData.Subjects_Teachers.Add(subject_teacher);
                     }
                     catch (Exception exc)
                     {
@@ -525,7 +503,7 @@ namespace OracleDatabaseProject
                     {
                         subject.subject_id = int.Parse(table_data[0]);
                         subject.title = table_data[1];
-                        this.m_subjects.Add(subject);
+                        this.DatabaseData.Subjects.Add(subject);
                     }
                     catch (Exception exc)
                     {
@@ -554,7 +532,7 @@ namespace OracleDatabaseProject
                         teacher.last_name = table_data[2];
                         teacher.professionally_active = int.Parse(table_data[3]);
                         teacher.account_id = int.Parse(table_data[4]);
-                        this.m_teachers.Add(teacher);
+                        this.DatabaseData.Teachers.Add(teacher);
                     }
                     catch (Exception exc)
                     {

@@ -9,7 +9,7 @@ DROP TABLE Subjects_Teachers CASCADE CONSTRAINTS PURGE;
 CREATE TABLE Groups
 (
     group_id INT NOT NULL PRIMARY KEY,
-    name VARCHAR(20) NOT NULL
+    name VARCHAR(50) NOT NULL
 );
 
 CREATE SEQUENCE seq_Groups START WITH 1 INCREMENT BY 1 CACHE 100;
@@ -22,7 +22,7 @@ END;
 CREATE TABLE Subjects
 (
 	subject_id INT NOT NULL PRIMARY KEY,
-    title VARCHAR(40) NOT NULL
+    title VARCHAR(50) NOT NULL
 );
 
 CREATE SEQUENCE seq_Subjects START WITH 1 INCREMENT BY 1 CACHE 100;
@@ -35,9 +35,9 @@ END;
 CREATE TABLE Accounts
 (
 	account_id INT NOT NULL PRIMARY KEY,
-    login VARCHAR(30) NOT NULL,
+    login VARCHAR(50) NOT NULL,
 	password VARCHAR(32) NOT NULL,
-    email VARCHAR(30) NOT NULL,
+    email VARCHAR(50) NOT NULL,
     is_teacher NUMBER(1,0) NOT NULL,
     create_date DATE NOT NULL
 );
@@ -52,8 +52,8 @@ END;
 CREATE TABLE Teachers
 (
 	teacher_id INT NOT NULL PRIMARY KEY,
-    first_name VARCHAR(20) NOT NULL,
-    last_name VARCHAR(20) NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
     professionally_active NUMBER(1,0) NOT NULL,
     account_id INT NOT NULL,
     
@@ -72,8 +72,8 @@ END;
 CREATE TABLE Students
 (
 	student_id INT NOT NULL PRIMARY KEY,
-    first_name VARCHAR(20) NOT NULL,
-    last_name VARCHAR(20) NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
     student_index INT NOT NULL,
     account_id INT NOT NULL,
             

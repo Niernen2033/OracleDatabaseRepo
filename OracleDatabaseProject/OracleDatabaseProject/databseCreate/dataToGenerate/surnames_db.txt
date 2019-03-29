@@ -1,4 +1,4 @@
-Garcia
+﻿Garcia
 Gonzalez
 Rodriguez
 Fernandez
@@ -7290,7 +7290,7 @@ Zuazua
 Rota
 Mateos Aparicio
 Gajate
-O'Brien
+O_Brien
 Lacosta
 Apaza
 Pillajo
@@ -8296,7 +8296,7 @@ Hazas
 Renart
 Bobillo
 Estañ
-O'Connor
+O_Connor
 El Yahyaoui
 Ungur
 Cornea
@@ -8406,7 +8406,7 @@ Fluxa
 Megido
 Tavarez
 Goberna
-O'Neill
+O_Neill
 Puiu
 Somoano
 Plazaola
@@ -11850,7 +11850,7 @@ Labat
 Alperi
 Esquerra
 Andreev
-D'Angelo
+D_Angelo
 Ricci
 Griffin
 Perugachi
@@ -13524,7 +13524,7 @@ Bay
 Hernani
 Valsera
 De Simon
-O'Sullivan
+O_Sullivan
 Rochdi
 Lakhdar
 Belkaid
@@ -14050,7 +14050,7 @@ Del Cacho
 Raimundez
 Moreau
 Caruana
-O'Donnell
+O_Donnell
 Ben Said
 Sultana
 Sidibeh
@@ -15209,7 +15209,7 @@ Orpez
 Anjos
 Power
 Sawaneh
-O'Reilly
+O_Reilly
 Dahmouni
 Abdessamie
 Nichita
@@ -17978,7 +17978,7 @@ El Fassi
 Bergmann
 Bahloul
 Riahi
-D'Amico
+D_Amico
 Willems
 Schaefer
 Younes
@@ -19082,7 +19082,7 @@ Nedyalkov
 Fenix
 Villaitodo
 Perez De Ayala
-O'Shea
+O_Shea
 Vitale
 Hagen
 Chourak
@@ -19180,7 +19180,7 @@ Ouchene
 Regrag
 Kent
 El Arabi
-O'Connell
+O_Connell
 Jebbari
 Zubair
 Bouhamid
@@ -20126,7 +20126,7 @@ Nazar
 Panayotov
 Agirrezabal
 Fink
-D'Alessandro
+D_Alessandro
 Sakhi
 Kenny
 Kowalska
@@ -20720,7 +20720,7 @@ Godrid
 Arnaud
 Laine
 Mura
-D'Ambrosio
+D_Ambrosio
 Olivieri
 Jamai
 El Haouzi
@@ -20949,7 +20949,7 @@ Gistas
 Visconti
 Rousseau
 Bela
-O'Callaghan
+O_Callaghan
 El Ayachi
 Gharbi
 Haller
@@ -21293,7 +21293,7 @@ Ruiz Capillas
 Pasqual
 Martinez Alcocer
 Rodriguez De Vera
-M'Hamed
+M_Hamed
 Louis
 Hajjaji
 Rice
@@ -22986,9 +22986,9 @@ Orvich
 Marega
 El Emrani
 Hamer
-D'Agostino
+D_Agostino
 Dahan
-O'Hara
+O_Hara
 El Kanfoudi
 Baali
 Curran
@@ -23285,7 +23285,7 @@ Lovell
 Azaroual
 Umar
 Dekker
-O'Leary
+O_Leary
 Stubbs
 Zelaoui
 Serhir
@@ -23561,7 +23561,7 @@ Wenzel
 Maiga
 Arifi
 Darif
-O'Rourke
+O_Rourke
 Ramli
 Sassi
 Costello
@@ -23974,7 +23974,7 @@ Ben Ahmed
 Bihi
 Stern
 Witt
-D'Andrea
+D_Andrea
 Emery
 Magrach
 Olah

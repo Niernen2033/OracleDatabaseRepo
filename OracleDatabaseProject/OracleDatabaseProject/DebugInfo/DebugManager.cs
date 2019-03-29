@@ -9,6 +9,34 @@ using System.Collections.ObjectModel;
 
 namespace OracleDatabaseProject
 {
+    sealed class DebugLog
+    {
+        public string Log { get; private set; }
+        public bool Sensitive { get; private set; }
+
+        public DebugLog(string log, bool isSensitive)
+        {
+            this.Log = log;
+            this.Sensitive = isSensitive;
+        }
+
+        public DebugLog(DebugLog other)
+        {
+            this.Log = string.Copy(other.Log);
+            this.Sensitive = other.Sensitive;
+        }
+    }
+
+    sealed class DebugEventArgs : EventArgs
+    {
+        public DebugLog DebugLog { get; private set; }
+
+        public DebugEventArgs(DebugLog log)
+        {
+            this.DebugLog = new DebugLog(log);
+        }
+    }
+
     sealed class DebugManager
     {
         //singleton variables
@@ -22,14 +50,14 @@ namespace OracleDatabaseProject
         private ushort m_save_logs_count_needed;
         private ushort m_save_logs_count;
         private string m_save_logs_path;
-        private List<string> m_info_data;
+        private List<DebugLog> m_info_data;
         private List<object> m_debug_disabled_objects;
 #endif //DEBUG_MANAGER
 
         public event EventHandler<DebugEventArgs> InfoLogAdded;
 
 #if DEBUG_MANAGER
-        public ReadOnlyCollection<string> GetInfoData { get { return this.m_info_data.AsReadOnly(); } }
+        public ReadOnlyCollection<DebugLog> GetInfoData { get { return this.m_info_data.AsReadOnly(); } }
 #else //DEBUG_MANAGER
         public List<string> GetInfoData { get { return new List<string>(); } }
 #endif //DEBUG_MANAGER
@@ -61,7 +89,7 @@ namespace OracleDatabaseProject
             this.m_save_logs_count = 0;
             this.m_available = false;
             this.m_debug_disabled_objects = new List<object>();
-            this.m_info_data = new List<string>();
+            this.m_info_data = new List<DebugLog>();
 #endif //DEBUG_MANAGER
         }
 
@@ -121,7 +149,7 @@ namespace OracleDatabaseProject
 #endif //DEBUG_MANAGER
         }
 
-        public void AddLog(string info, object source)
+        public void AddLog(string info, object source, bool sensitive=false)
         {
 #if DEBUG_MANAGER
             if (!this.m_debug_disabled_objects.Contains(source))
@@ -133,7 +161,7 @@ namespace OracleDatabaseProject
                     {
                         sourceInfo = source.ToString().Replace("OracleDatabaseProject.", "");
                     }
-                    this.m_info_data.Add(sourceInfo + "[" + DateTime.Now.ToLongTimeString() + "] => " + info);
+                    this.m_info_data.Add(new DebugLog(sourceInfo + "[" + DateTime.Now.ToLongTimeString() + "] => " + info, sensitive));
 
                     DebugEventArgs eventArgs = new DebugEventArgs(this.m_info_data[this.m_info_data.Count - 1]);
                     this.OnInfoLogAdded(eventArgs);
@@ -219,11 +247,11 @@ namespace OracleDatabaseProject
             {
                 using (StreamWriter writer = new StreamWriter(this.m_save_logs_path))
                 {
-                    foreach(string infoLog in this.m_info_data)
+                    foreach(DebugLog debugLog in this.m_info_data)
                     {
                         try
                         {
-                            writer.WriteLine(infoLog);
+                            writer.WriteLine(debugLog.Log);
                         }
                         catch(Exception exc)
                         {
@@ -256,16 +284,6 @@ namespace OracleDatabaseProject
 #else //DEBUG_MANAGER
             return true;
 #endif //DEBUG_MANAGER
-        }
-    }
-
-    sealed class DebugEventArgs : EventArgs
-    {
-        public string Log { get; private set; }
-
-        public DebugEventArgs(string log)
-        {
-            this.Log = log;
         }
     }
 }

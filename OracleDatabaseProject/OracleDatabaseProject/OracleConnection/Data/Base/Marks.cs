@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OracleDatabaseProject
 {
-    class Marks
+    class Marks : IInsertCommand
     {
         public int mark_id { get; set; }
         public int student_id { get; set; }
@@ -27,6 +27,12 @@ namespace OracleDatabaseProject
         {
             return this.mark_id + ";" + this.student_id + ";" + this.subject_id + ";" +
                 this.create_date + ";" + this.mark;
+        }
+
+        public string GetInsertString()
+        {
+            return "INSERT INTO Marks VALUES(NULL," + this.student_id + ", " + this.subject_id + ", " +
+                "TO_DATE('" + this.create_date + "', 'DD.MM.YYYY'), " + this.mark + ")";
         }
     }
 }

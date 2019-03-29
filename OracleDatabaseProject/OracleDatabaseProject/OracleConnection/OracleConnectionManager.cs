@@ -103,7 +103,7 @@ namespace OracleDatabaseProject
                 DebugManager.Instance.AddLog(exc.Message, this);
                 return false;
             }
-            DebugManager.Instance.AddLog("Connection established (" + this.m_connection.ServerVersion + ")", this);
+            DebugManager.Instance.AddLog("Connection established (" + this.m_connection.ServerVersion + ")", this, true);
             return true;
         }
 
@@ -123,6 +123,7 @@ namespace OracleDatabaseProject
                 this.BusyStatusWait(waitTimeInSec);
             }
             this.m_connection.Close();
+            DebugManager.Instance.AddLog("Connection closed", this, true);
             return true;
         }
 

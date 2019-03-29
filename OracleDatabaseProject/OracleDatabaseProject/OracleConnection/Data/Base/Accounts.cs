@@ -33,8 +33,8 @@ namespace OracleDatabaseProject
 
         public string GetInsertString()
         {
-            return "INSERT INTO Accounts VALUES(NULL,'" + this.login + "', '" + this.password + "'," +
-                "'" + this.email + "'," + this.is_teacher + ",TO_DATE('" + this.create_date  + "', 'YYYY-MM-DD')" + ")";
+            return "INSERT INTO Accounts VALUES(NULL,'" + this.login + "', '" + this.password + "','"
+                + this.email + "'," + this.is_teacher + ",TO_DATE('" + this.create_date  + "', 'DD.MM.YYYY')" + ")";
         }
     }
 }

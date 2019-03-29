@@ -37,7 +37,7 @@ namespace OracleDatabaseProject
         {
             this.listBox1.Invoke(new Action(delegate ()
             {
-                this.listBox1.Items.Add(e.Log);
+                if(e.DebugLog.Sensitive) this.listBox1.Items.Add(e.DebugLog.Log);
             }));
         }
 
@@ -133,30 +133,116 @@ namespace OracleDatabaseProject
             foreach (string command in commands)
             {
                 bool status = await this.connectionManager.ExecuteCommandAsync(command);
-                DebugManager.Instance.AddLog(status.ToString(), this);
+                DebugManager.Instance.AddLog(status.ToString(), this, true);
             }
             this.EnableButtons(this.button1);
         }
 
-        private async void button2_Click(object sender, EventArgs e)
+        private async void SendDatabase()
         {
-            this.DisableButtons(this.button2);
             DatabaseManager databaseManager = new DatabaseManager();
-            bool status = databaseManager.LoadDatabaseFromFiles();
-            DebugManager.Instance.AddLog(status.ToString(), this);
-            if(status)
+            bool databaseStatus = databaseManager.LoadDatabaseFromFiles();
+            bool commandStatus = true;
+            string command = string.Empty;
+
+            if (databaseStatus)
             {
-                foreach(Accounts gr in databaseManager.GetAccounts)
+                foreach (Groups item in databaseManager.DatabaseData.Groups)
                 {
-                    string comm = gr.GetInsertString();
-                    bool stat = await this.connectionManager.ExecuteCommandAsync(comm);
-                    if (!stat)
+                    string comm = item.GetInsertString();
+                    commandStatus = await this.connectionManager.ExecuteCommandAsync(comm);
+                    if (!commandStatus)
                     {
                         DebugManager.Instance.AddLog("exc command fail", this);
                         break;
                     }
                 }
+                DebugManager.Instance.AddLog("Result for Groups: " + commandStatus, this, true);
+                if (!commandStatus) return;
+                foreach (Subjects item in databaseManager.DatabaseData.Subjects)
+                {
+                    string comm = item.GetInsertString();
+                    commandStatus = await this.connectionManager.ExecuteCommandAsync(comm);
+                    if (!commandStatus)
+                    {
+                        DebugManager.Instance.AddLog("exc command fail", this);
+                        break;
+                    }
+                }
+                DebugManager.Instance.AddLog("Result for Subjects: " + commandStatus, this, true);
+                if (!commandStatus) return;
+                foreach (Accounts item in databaseManager.DatabaseData.Accounts)
+                {
+                    string comm = item.GetInsertString();
+                    commandStatus = await this.connectionManager.ExecuteCommandAsync(comm);
+                    if (!commandStatus)
+                    {
+                        DebugManager.Instance.AddLog("exc command fail", this);
+                        break;
+                    }
+                }
+                DebugManager.Instance.AddLog("Result for Accounts: " + commandStatus, this, true);
+                if (!commandStatus) return;
+                foreach (Teachers item in databaseManager.DatabaseData.Teachers)
+                {
+                    string comm = item.GetInsertString();
+                    commandStatus = await this.connectionManager.ExecuteCommandAsync(comm);
+                    if (!commandStatus)
+                    {
+                        DebugManager.Instance.AddLog("exc command fail", this);
+                        break;
+                    }
+                }
+                DebugManager.Instance.AddLog("Result for Teachers: " + commandStatus, this, true);
+                if (!commandStatus) return;
+                foreach (Students item in databaseManager.DatabaseData.Students)
+                {
+                    string comm = item.GetInsertString();
+                    commandStatus = await this.connectionManager.ExecuteCommandAsync(comm);
+                    if (!commandStatus)
+                    {
+                        DebugManager.Instance.AddLog("exc command fail", this);
+                        break;
+                    }
+                }
+                DebugManager.Instance.AddLog("Result for Students: " + commandStatus, this, true);
+                if (!commandStatus) return;
+                foreach (Marks item in databaseManager.DatabaseData.Marks)
+                {
+                    string comm = item.GetInsertString();
+                    commandStatus = await this.connectionManager.ExecuteCommandAsync(comm);
+                    if (!commandStatus)
+                    {
+                        DebugManager.Instance.AddLog("exc command fail", this);
+                        break;
+                    }
+                }
+                DebugManager.Instance.AddLog("Result for Marks: " + commandStatus, this, true);
+                if (!commandStatus) return;
+                foreach (Subjects_Teachers item in databaseManager.DatabaseData.Subjects_Teachers)
+                {
+                    string comm = item.GetInsertString();
+                    commandStatus = await this.connectionManager.ExecuteCommandAsync(comm);
+                    if (!commandStatus)
+                    {
+                        DebugManager.Instance.AddLog("exc command fail", this);
+                        break;
+                    }
+                }
+                DebugManager.Instance.AddLog("Result for Subjects_Teachers: " + commandStatus, this, true);
+                if (!commandStatus) return;
             }
+        }
+
+        private async void button2_Click(object sender, EventArgs e)
+        {
+            this.DisableButtons(this.button2);
+
+            //DatabaseManager databaseManager = new DatabaseManager();
+            //bool status = databaseManager.GenerateDatabase(10000,21000,true);
+            //DebugManager.Instance.AddLog(status.ToString(), this, true);
+            this.SendDatabase();
+            
             this.EnableButtons(this.button2);
         }
     }

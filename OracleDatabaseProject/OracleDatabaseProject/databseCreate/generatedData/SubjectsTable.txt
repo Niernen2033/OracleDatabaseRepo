@@ -14,7 +14,7 @@
 14;Biochemistry
 15;Microbiology and Mycology
 16;International Economics
-17;Poverty and Distribution in Developing Countries
+17;Poverty and Distribution
 18;Welfare and trade
 19;Economic Growth
 20;Economic History and Inequality
@@ -33,7 +33,7 @@
 33;American Literature
 34;British Civilisation
 35;American Civilization
-36;Advanced English Grammar: Syntax and argumentation
+36;Advanced English Grammar
 37;Systemic Functional Grammar, introduction
 38;Varieties of English Texts
 39;English Corpus Linguistics
@@ -48,7 +48,7 @@
 48;Linguistics and literature in English
 49;English Renaissance Literature
 50;Early 20th Century Literature in English
-51;British Literature in the Age of the Enlightenment
+51;British Literature
 52;The Romantic Period
 53;The Victorian Period
 54;Late 20th Century Literature in English

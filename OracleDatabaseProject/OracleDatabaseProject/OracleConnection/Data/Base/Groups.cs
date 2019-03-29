@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 
 namespace OracleDatabaseProject
 {
-    class Groups
+    class Groups : IInsertCommand
     {
         public int group_id { get; set; }
         public string name { get; set; }
@@ -21,6 +21,11 @@ namespace OracleDatabaseProject
         public override string ToString()
         {
             return this.group_id + ";" + this.name;
+        }
+
+        public string GetInsertString()
+        {
+            return "INSERT INTO Groups VALUES(NULL,'" + this.name + "')";
         }
     }
 }

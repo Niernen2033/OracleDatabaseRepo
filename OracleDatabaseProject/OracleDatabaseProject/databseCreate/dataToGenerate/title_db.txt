@@ -14,7 +14,7 @@ Human Physiology
 Biochemistry
 Microbiology and Mycology
 International Economics
-Poverty and Distribution in Developing Countries
+Poverty and Distribution
 Welfare and trade
 Economic Growth
 Economic History and Inequality
@@ -33,7 +33,7 @@ British Literature
 American Literature
 British Civilisation
 American Civilization
-Advanced English Grammar: Syntax and argumentation
+Advanced English Grammar
 Systemic Functional Grammar, introduction
 Varieties of English Texts
 English Corpus Linguistics
@@ -48,7 +48,7 @@ Middle English, introduction
 Linguistics and literature in English
 English Renaissance Literature
 Early 20th Century Literature in English
-British Literature in the Age of the Enlightenment
+British Literature
 The Romantic Period
 The Victorian Period
 Late 20th Century Literature in English
