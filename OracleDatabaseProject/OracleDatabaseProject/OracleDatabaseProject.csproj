@@ -67,6 +67,7 @@
     <Compile Include="OracleConnection\Data\DataManager.cs" />
     <Compile Include="OracleConnection\Data\Base\Groups.cs" />
     <Compile Include="OracleConnection\Data\OracleConnectionData.cs" />
+    <Compile Include="OracleConnection\Data\RandomGauss.cs" />
     <Compile Include="OracleConnection\OracleConnectionManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

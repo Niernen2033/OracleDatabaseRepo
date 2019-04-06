@@ -42,11 +42,13 @@ namespace OracleDatabaseProject
     class DatabaseManager
     {
         private Random random;
+        private RandomGauss randomGauss;
         public DatabaseData DatabaseData { get; private set; }
 
         public DatabaseManager()
         {
             this.random = new Random();
+            this.randomGauss = new RandomGauss();
             this.DatabaseData = new DatabaseData();
         }
 
@@ -189,7 +191,19 @@ namespace OracleDatabaseProject
                 mark.mark_id = i + 1;
                 mark.student_id = this.random.Next(1, this.DatabaseData.Students.Count + 1);
                 mark.subject_id = this.random.Next(1, this.DatabaseData.Subjects.Count + 1);
-                mark.mark = this.random.Next(2, 6);
+                int chance = this.random.Next(0, 101);
+                if(chance <= 20)
+                {
+                    mark.mark = this.randomGauss.Next(2, 4);
+                }
+                else if (chance <= 80)
+                {
+                    mark.mark = this.randomGauss.Next(3, 5);
+                }
+                else
+                {
+                    mark.mark = this.randomGauss.Next(4, 6);
+                }
                 Accounts account = this.DatabaseData.Accounts[this.DatabaseData.Students[mark.student_id - 1].account_id - 1];
                 DateTime accCreateDate = Convert.ToDateTime(account.create_date);
                 mark.create_date = this.GenerateRandomDate(accCreateDate.Year, accCreateDate.Month, accCreateDate.Day).ToShortDateString();
@@ -241,7 +255,7 @@ namespace OracleDatabaseProject
             return true;
         }
 
-        public bool GenerateDatabase(uint accounts_count, uint marks_count, bool save = false)
+        public bool GenerateDatabase(uint accounts_count, uint marks_count, bool statistics, bool save = false)
         {
             this.DatabaseData.Clear();
 
@@ -337,6 +351,97 @@ namespace OracleDatabaseProject
                         DebugManager.Instance.AddLog("Subjects_Teachers saving error", this);
                     }
                 }
+            }
+
+            if (statistics)
+            {
+                if (!this.CreateDatabaseStatistics())
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool CreateDatabaseStatistics()
+        {
+            if(!this.LoadDatabaseFromFiles())
+            {
+                return false;
+            }
+
+            Dictionary<string, int> Students_Teachers_Count = new Dictionary<string, int>()
+            {
+                { "Students", 0 },
+                { "Teachers", 0 }
+            };
+            foreach (Accounts item in this.DatabaseData.Accounts)
+            {
+                if(item.is_teacher == 1)
+                {
+                    Students_Teachers_Count["Teachers"]++;
+                }
+                else
+                {
+                    Students_Teachers_Count["Students"]++;
+                }
+            }
+
+            if (!DataManager.Save<string,int>(GlobalVariables.GeneratedDataDatabseDirectory + "AccountsSTTableStatistics.txt", Students_Teachers_Count))
+            {
+                return false;
+            }
+
+            Dictionary<string, int> Students_Names = new Dictionary<string, int>();
+            foreach(Students item in this.DatabaseData.Students)
+            {
+                if(!Students_Names.ContainsKey(item.first_name))
+                {
+                    Students_Names.Add(item.first_name, 1);
+                    continue;
+                }
+                else
+                {
+                    Students_Names[item.first_name]++;
+                }
+            }
+
+            if (!DataManager.Save<string, int>(GlobalVariables.GeneratedDataDatabseDirectory + "StudentsNamesTableStatistics.txt", Students_Names))
+            {
+                return false;
+            }
+
+            Dictionary<int, int> Marks_Count = new Dictionary<int, int>();
+            Dictionary<int, int> Marks_Date = new Dictionary<int, int>();
+            foreach (Marks item in this.DatabaseData.Marks)
+            {
+                if (!Marks_Count.ContainsKey(item.mark))
+                {
+                    Marks_Count.Add(item.mark, 1);
+                }
+                else
+                {
+                    Marks_Count[item.mark]++;
+                }
+                DateTime date = Convert.ToDateTime(item.create_date);
+                if(!Marks_Date.ContainsKey(date.Month))
+                {
+                    Marks_Date.Add(date.Month, 1);
+                }
+                else
+                {
+                    Marks_Date[date.Month]++;
+                }
+            }
+
+            if (!DataManager.Save<int, int>(GlobalVariables.GeneratedDataDatabseDirectory + "MarksCountTableStatistics.txt", Marks_Count))
+            {
+                return false;
+            }
+            if (!DataManager.Save<int, int>(GlobalVariables.GeneratedDataDatabseDirectory + "MarksDateTableStatistics.txt", Marks_Date))
+            {
+                return false;
             }
 
             return true;
