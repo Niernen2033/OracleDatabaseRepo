@@ -41,11 +41,18 @@ namespace OracleDatabaseProject
         }
 
 
-        public OracleConnectionManager()
+        public OracleConnectionManager(bool trySetDefaultConn = false)
         {
             this.m_connection = new OracleConnection();
             this.m_connectionData = null;
             //DebugManager.Instance.RegisterToDisabledList(this);
+            if(trySetDefaultConn)
+            {
+                if (!XmlManager.Load<OracleConnectionData>(GlobalVariables.DefaultConnectionsDirectory + "pg_connection.xml", out this.m_connectionData))
+                {
+                    this.m_connectionData = null;
+                }
+            }
         }
 
         public Task<bool> OpenConnectionAsync(string userId, string userPassword, string host, ushort port, string serviceName)

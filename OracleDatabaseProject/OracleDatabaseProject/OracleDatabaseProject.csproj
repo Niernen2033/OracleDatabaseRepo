@@ -71,6 +71,8 @@
     <Compile Include="OracleConnection\OracleConnectionManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tasks\DBTask.cs" />
+    <Compile Include="Tasks\DBTaskManager.cs" />
     <Compile Include="XmlManager\XmlManager.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>

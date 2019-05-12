@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -18,19 +19,13 @@ namespace OracleDatabaseProject
         {
             InitializeComponent();
             DebugManager.Instance.Enable();
-            DebugManager.Instance.EnableLogsSaving(GlobalVariables.DebugInfoLogsDirectory + "debugLog.txt", 50);
+            DebugManager.Instance.EnableLogsSaving(GlobalVariables.DebugInfoLogsDirectory + "debugLog.txt", 1);
 
-            this.connectionManager = new OracleConnectionManager();
+            this.connectionManager = new OracleConnectionManager(true);
 
             this.FormClosing += Form1_FormClosing;
             DebugManager.Instance.InfoLogAdded += Instance_InfoLogAdded;
 
-            //temp
-            OracleConnectionData oData = new OracleConnectionData();
-            if (XmlManager.Load<OracleConnectionData>(GlobalVariables.DefaultConnectionsDirectory + "pg_connection.xml", out oData))
-            {
-                this.connectionManager.SetConnectionData(oData);
-            }
             /*
             Dictionary<int, int> numbers = new Dictionary<int, int>();
             Random a = new Random();
@@ -56,7 +51,7 @@ namespace OracleDatabaseProject
         {
             this.listBox1.Invoke(new Action(delegate ()
             {
-                if(e.DebugLog.Sensitive) this.listBox1.Items.Add(e.DebugLog.Log);
+                if(e.DebugLog.Sensitive) this.listBox1.Items.Add(this.listBox1.Items.Count +"|" + e.DebugLog.Log);
             }));
         }
 
@@ -256,14 +251,37 @@ namespace OracleDatabaseProject
 
         private async void button2_Click(object sender, EventArgs e)
         {
-            this.DisableButtons(this.button2);
-
+            //this.DisableButtons(this.button2);
             //DatabaseManager databaseManager = new DatabaseManager();
             //bool status = databaseManager.GenerateDatabase(4000, 7000, true, true);
             //DebugManager.Instance.AddLog(status.ToString(), this, true);
-            this.SendDatabase();
+            //this.SendDatabase();
+            //this.EnableButtons(this.button2);
+        }
 
-            this.EnableButtons(this.button2);
+        private void button3_Click(object sender, EventArgs e)
+        {
+            this.DisableButtons(this.button3);
+            DBTask dBTask = new DBTask(TaskOwner.USER);
+            DBTaskManager dBTaskManager = new DBTaskManager();
+            Thread[] threads = new Thread[60];
+
+            OracleConnectionData connectionData = new OracleConnectionData();
+            if (!XmlManager.Load<OracleConnectionData>(GlobalVariables.DefaultConnectionsDirectory + "pg_connection.xml", out connectionData))
+            {
+                return;
+            }
+
+            for (int i=0; i<threads.Length; i++)
+            {
+                threads[i] = new Thread(() => dBTaskManager.GetJob(dBTask, connectionData));
+                threads[i].Name = "Thread[" + i + "]";
+            }
+            for (int i = 0; i < threads.Length; i++)
+            {
+                threads[i].Start();
+            }
+            this.EnableButtons(this.button3);
         }
     }
 }

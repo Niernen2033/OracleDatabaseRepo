@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Windows.Forms;
 using System.Collections.ObjectModel;
+using System.Threading;
 
 namespace OracleDatabaseProject
 {
@@ -96,7 +97,7 @@ namespace OracleDatabaseProject
         private void OnInfoLogAdded(DebugEventArgs e)
         {
 #if DEBUG_MANAGER
-            this.InfoLogAdded.Invoke(this, e);
+            this.InfoLogAdded?.Invoke(this, e);
 #else //DEBUG_MANAGER
             return;
 #endif //DEBUG_MANAGER
@@ -156,10 +157,14 @@ namespace OracleDatabaseProject
             {
                 if (this.CanIStoreDebugInfo())
                 {
-                    string sourceInfo = "NONE";
+                    string sourceInfo = "";
                     if(source != null)
                     {
-                        sourceInfo = source.ToString().Replace("OracleDatabaseProject.", "");
+                        sourceInfo += source.ToString().Replace("OracleDatabaseProject.", "");
+                    }
+                    if(Thread.CurrentThread.Name != string.Empty)
+                    {
+                        sourceInfo += "[" + Thread.CurrentThread.Name + "]";
                     }
                     this.m_info_data.Add(new DebugLog(sourceInfo + "[" + DateTime.Now.ToLongTimeString() + "] => " + info, sensitive));
 
@@ -247,13 +252,13 @@ namespace OracleDatabaseProject
             {
                 using (StreamWriter writer = new StreamWriter(this.m_save_logs_path))
                 {
-                    foreach(DebugLog debugLog in this.m_info_data)
+                    for (int i = 0; i < this.m_info_data.Count; i++)
                     {
                         try
                         {
-                            writer.WriteLine(debugLog.Log);
+                            writer.WriteLine(this.m_info_data[i].Log);
                         }
-                        catch(Exception exc)
+                        catch (Exception exc)
                         {
                             MessageBox.Show(exc.Message);
                             return;
