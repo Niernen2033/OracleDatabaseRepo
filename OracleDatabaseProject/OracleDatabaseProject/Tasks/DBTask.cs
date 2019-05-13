@@ -14,25 +14,22 @@ namespace OracleDatabaseProject
 
     class DBTask
     {
-        public TaskOwner TaskOwner { get; private set; }
-        public string Job { get; private set; }
-        public int FreezeTime { get; private set; }
+        public TaskOwner TaskOwner { get; set; }
+        public string Job { get; set; }
+        public int FreezeTime { get; set; }
+
+        public DBTask(DBTask dBTask)
+        {
+            this.TaskOwner = dBTask.TaskOwner;
+            this.Job = string.Copy(dBTask.Job);
+            this.FreezeTime = dBTask.FreezeTime;
+        }
 
         public DBTask(TaskOwner taskOwner)
         {
             this.TaskOwner = taskOwner;
             this.Job = string.Empty;
             this.FreezeTime = 0;
-        }
-
-        public void SetJob(string job)
-        {
-            this.Job = job;
-        }
-
-        public void SetFreezeTime(int freezeTime)
-        {
-            this.FreezeTime = freezeTime;
         }
     }
 }

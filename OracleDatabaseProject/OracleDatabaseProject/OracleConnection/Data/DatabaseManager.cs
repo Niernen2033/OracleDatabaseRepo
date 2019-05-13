@@ -52,7 +52,7 @@ namespace OracleDatabaseProject
             this.DatabaseData = new DatabaseData();
         }
 
-        private bool GenerateGroups()
+        public bool GenerateGroups()
         {
             List<string> _names = new List<string>();
             if (!DataManager.Load(GlobalVariables.DataToGenerateDatabseDirectory + "gname_db.txt", out _names))
@@ -69,7 +69,7 @@ namespace OracleDatabaseProject
             return true;
         }
 
-        private bool GenerateSubjects()
+        public bool GenerateSubjects()
         {
             List<string> _titles = new List<string>();
             if (!DataManager.Load(GlobalVariables.DataToGenerateDatabseDirectory + "title_db.txt", out _titles))
@@ -106,7 +106,7 @@ namespace OracleDatabaseProject
             return startDate.AddDays(this.random.Next(range));
         }
 
-        private bool GenerateAccounts(uint count)
+        public bool GenerateAccounts(uint count)
         {
             List<string> _logins = new List<string>();
             List<string> _passwords = new List<string>();
@@ -139,7 +139,7 @@ namespace OracleDatabaseProject
             return true;
         }
 
-        private bool GenerateStudentsTeachers()
+        public bool GenerateStudentsTeachers()
         {
             List<string> _firstnames = new List<string>();
             List<string> _surnames = new List<string>();
@@ -183,8 +183,9 @@ namespace OracleDatabaseProject
             return true;
         }
 
-        private bool GenerateMarks(uint count)
+        public bool GenerateMarks(uint count, bool realDate = true)
         {
+            this.DatabaseData.Marks.Clear();
             for (int i = 0; i < count; i++)
             {
                 Marks mark = new Marks();
@@ -204,9 +205,16 @@ namespace OracleDatabaseProject
                 {
                     mark.mark = this.randomGauss.Next(4, 6);
                 }
-                Accounts account = this.DatabaseData.Accounts[this.DatabaseData.Students[mark.student_id - 1].account_id - 1];
-                DateTime accCreateDate = Convert.ToDateTime(account.create_date);
-                mark.create_date = this.GenerateRandomDate(accCreateDate.Year, accCreateDate.Month, accCreateDate.Day).ToShortDateString();
+                if (realDate)
+                {
+                    Accounts account = this.DatabaseData.Accounts[this.DatabaseData.Students[mark.student_id - 1].account_id - 1];
+                    DateTime accCreateDate = Convert.ToDateTime(account.create_date);
+                    mark.create_date = this.GenerateRandomDate(accCreateDate.Year, accCreateDate.Month, accCreateDate.Day).ToShortDateString();
+                }
+                else
+                {
+                    mark.create_date = this.GenerateRandomDate().ToShortDateString();
+                }
                 this.DatabaseData.Marks.Add(mark);
             }
             return true;
@@ -236,7 +244,7 @@ namespace OracleDatabaseProject
             return result;
         }
 
-        private bool Generate_Subjects_Teachers()
+        public bool Generate_Subjects_Teachers()
         {
             foreach(Teachers teacher in this.DatabaseData.Teachers)
             {

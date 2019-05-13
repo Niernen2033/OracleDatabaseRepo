@@ -257,30 +257,38 @@ namespace OracleDatabaseProject
             //DebugManager.Instance.AddLog(status.ToString(), this, true);
             //this.SendDatabase();
             //this.EnableButtons(this.button2);
+            this.listBox1.Items.Clear();
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private async void button3_Click(object sender, EventArgs e)
         {
             this.DisableButtons(this.button3);
-            DBTask dBTask = new DBTask(TaskOwner.USER);
             DBTaskManager dBTaskManager = new DBTaskManager();
-            Thread[] threads = new Thread[60];
-
             OracleConnectionData connectionData = new OracleConnectionData();
             if (!XmlManager.Load<OracleConnectionData>(GlobalVariables.DefaultConnectionsDirectory + "pg_connection.xml", out connectionData))
             {
                 return;
             }
+            else
+            {
+                dBTaskManager.LoadConnectionData(connectionData);
+            }
 
-            for (int i=0; i<threads.Length; i++)
+            DatabaseManager databaseManager = new DatabaseManager();
+            Random random = new Random();
+            for (int i = 0; i < 50; i++)
             {
-                threads[i] = new Thread(() => dBTaskManager.GetJob(dBTask, connectionData));
-                threads[i].Name = "Thread[" + i + "]";
+                DBTask dBTask = new DBTask(TaskOwner.USER);
+                if(databaseManager.GenerateMarks(1, false))
+                {
+                    dBTask.Job = databaseManager.DatabaseData.Marks[0].GetInsertString();
+                }
+                dBTask.FreezeTime = random.Next(0, 100);
+                dBTaskManager.AddTask(dBTask);
             }
-            for (int i = 0; i < threads.Length; i++)
-            {
-                threads[i].Start();
-            }
+
+            await dBTaskManager.StartAllTasksAsync();
+
             this.EnableButtons(this.button3);
         }
     }
