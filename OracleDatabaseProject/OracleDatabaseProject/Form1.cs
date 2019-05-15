@@ -19,7 +19,9 @@ namespace OracleDatabaseProject
         {
             InitializeComponent();
             DebugManager.Instance.Enable();
-            DebugManager.Instance.EnableLogsSaving(GlobalVariables.DebugInfoLogsDirectory + "debugLog.txt", 1);
+            DebugManager.Instance.EnableLogsSaving(GlobalVariables.DebugInfoLogsDirectory 
+                + "debugLog[" + DateTime.Today.ToLongDateString() + "][" 
+                + DateTime.Now.ToLongTimeString().Replace(":","-") + "].txt", 1);
 
             this.connectionManager = new OracleConnectionManager(true);
 
@@ -279,11 +281,21 @@ namespace OracleDatabaseProject
             for (int i = 0; i < 50; i++)
             {
                 DBTask dBTask = new DBTask(TaskOwner.USER);
-                if(databaseManager.GenerateMarks(1, false))
+                if (random.Next(0, 101) < 90)
                 {
-                    dBTask.Job = databaseManager.DatabaseData.Marks[0].GetInsertString();
+                    if (databaseManager.GenerateMarks(1, false))
+                    {
+                        dBTask.Job = databaseManager.DatabaseData.Marks[0].GetInsertString();
+                    }
                 }
-                dBTask.FreezeTime = dBTask.GetFreezeTimeInSec(random.Next(0, 30));
+                else
+                {
+                    Accounts accounts = new Accounts();
+                    accounts.account_id = random.Next(0, 1000);
+                    accounts.password = "KAPPA";
+                    dBTask.Job = accounts.GetUpdateString(accounts, (int)AccountsItemsIndex.PASSWORD);
+                }
+                dBTask.FreezeTime = dBTask.GetFreezeTimeInSec(random.Next(0, 10));
                 dBTaskManager.AddTask(dBTask);
             }
 

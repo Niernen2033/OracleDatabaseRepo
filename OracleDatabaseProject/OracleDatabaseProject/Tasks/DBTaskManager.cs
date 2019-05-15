@@ -89,7 +89,10 @@ namespace OracleDatabaseProject
             }
             bool status = true;
 
-            if (status) { status = connectionManager.BeginTransaction(); }
+            if (status)
+            {
+                status = connectionManager.BeginTransaction();
+            }
 
             if (freezeAfter == 0 && status)
             {
@@ -97,7 +100,10 @@ namespace OracleDatabaseProject
                 Thread.Sleep(task.FreezeTime);
             }
 
-            if (status) { status = connectionManager.ExecuteCommandInTransaction(task.Job); }
+            if (status)
+            {
+                status = connectionManager.ExecuteCommandInTransaction(task.Job);
+            }
 
             if (freezeAfter == 1 && status)
             {
@@ -105,8 +111,22 @@ namespace OracleDatabaseProject
                 Thread.Sleep(task.FreezeTime);
             }
 
-            if (status) { status = connectionManager.EndTransaction(OracleTransactionEndStatus.O_COMMIT); }
-            else { status = connectionManager.EndTransaction(OracleTransactionEndStatus.O_ROLLBACK); }
+            if (status)
+            {
+                int howToEnd = random.Next(0, 101);
+                if (howToEnd < 80)
+                {
+                    status = connectionManager.EndTransaction(OracleTransactionEndStatus.O_COMMIT);
+                }
+                else
+                {
+                    status = connectionManager.EndTransaction(OracleTransactionEndStatus.O_ROLLBACK);
+                }
+            }
+            else
+            {
+                status = connectionManager.EndTransaction(OracleTransactionEndStatus.O_ROLLBACK);
+            }
 
             connectionManager.CloseConnection();
         }
