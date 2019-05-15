@@ -25,6 +25,20 @@ namespace OracleDatabaseProject
             this.FreezeTime = dBTask.FreezeTime;
         }
 
+        public int GetFreezeTimeInSec(int sec)
+        {
+            int targetSec = 0;
+            if(sec > (int.MaxValue / 1000))
+            {
+                targetSec = int.MaxValue;
+            }
+            else
+            {
+                targetSec = sec * 1000;
+            }
+            return targetSec;
+        }
+
         public DBTask(TaskOwner taskOwner)
         {
             this.TaskOwner = taskOwner;

@@ -23,8 +23,16 @@ namespace OracleDatabaseProject
 
         public DebugLog(DebugLog other)
         {
-            this.Log = string.Copy(other.Log);
-            this.Sensitive = other.Sensitive;
+            if (other != null)
+            {
+                this.Log = string.Copy(other.Log);
+                this.Sensitive = other.Sensitive;
+            }
+            else
+            {
+                this.Log = string.Empty;
+                this.Sensitive = false;
+            }
         }
     }
 

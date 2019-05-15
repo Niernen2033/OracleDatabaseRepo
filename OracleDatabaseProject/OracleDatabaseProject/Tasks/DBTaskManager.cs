@@ -79,7 +79,7 @@ namespace OracleDatabaseProject
         public void GetJob(DBTask task, OracleConnectionData oracleConnectionData)
         {
             Random random = new Random();
-            int freezeBefore = random.Next(0, 2);
+            int freezeAfter = random.Next(0, 2);
             OracleConnectionManager connectionManager = new OracleConnectionManager();
             connectionManager.SetConnectionData(oracleConnectionData);
 
@@ -87,16 +87,27 @@ namespace OracleDatabaseProject
             {
                 return;
             }
-            if (freezeBefore == 0)
+            bool status = true;
+
+            if (status) { status = connectionManager.BeginTransaction(); }
+
+            if (freezeAfter == 0 && status)
             {
+                DebugManager.Instance.AddLog("Sleeping before command: " + task.FreezeTime + "ms", this);
                 Thread.Sleep(task.FreezeTime);
             }
-            bool status = connectionManager.ExecuteCommand(task.Job);
-            DebugManager.Instance.AddLog(status.ToString(), null, true);
-            if (freezeBefore == 1)
+
+            if (status) { status = connectionManager.ExecuteCommandInTransaction(task.Job); }
+
+            if (freezeAfter == 1 && status)
             {
+                DebugManager.Instance.AddLog("Sleeping after command: " + task.FreezeTime + "ms", this);
                 Thread.Sleep(task.FreezeTime);
             }
+
+            if (status) { status = connectionManager.EndTransaction(OracleTransactionEndStatus.O_COMMIT); }
+            else { status = connectionManager.EndTransaction(OracleTransactionEndStatus.O_ROLLBACK); }
+
             connectionManager.CloseConnection();
         }
     }

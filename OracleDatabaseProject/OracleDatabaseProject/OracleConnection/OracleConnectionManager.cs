@@ -9,10 +9,13 @@ using System.Diagnostics;
 
 namespace OracleDatabaseProject
 {
+    enum OracleTransactionEndStatus { O_ROLLBACK, O_COMMIT };
+
     sealed class OracleConnectionManager : IDisposable
     {
         private OracleConnection m_connection;
         private OracleConnectionData m_connectionData;
+        private OracleTransaction m_transaction;
 
         public bool IsOpen
         {
@@ -45,6 +48,7 @@ namespace OracleDatabaseProject
         {
             this.m_connection = new OracleConnection();
             this.m_connectionData = null;
+            this.m_transaction = null;
             //DebugManager.Instance.RegisterToDisabledList(this);
             if(trySetDefaultConn)
             {
@@ -86,6 +90,97 @@ namespace OracleDatabaseProject
                 return false;
             }
             return this.OpenConnection(this.m_connectionData);
+        }
+
+        public bool BeginTransaction()
+        {
+            if(this.m_connection == null || !this.IsOpen || this.m_transaction != null)
+            {
+                return false;
+            }
+            this.m_transaction = this.m_connection.BeginTransaction();
+            return true;
+        }
+
+        public bool ExecuteCommandInTransaction(string comm, ushort maxExecuteTimeInSec = 0)
+        {
+            if(this.m_transaction == null || this.m_connection == null)
+            {
+                return false;
+            }
+            if (this.IsBusy)
+            {
+                this.BusyStatusWait(maxExecuteTimeInSec);
+                if (this.IsBusy)
+                {
+                    return false;
+                }
+            }
+
+            using (OracleCommand cmd = this.m_connection.CreateCommand())
+            {
+                try
+                {
+                    cmd.Connection = this.m_connection;
+                    cmd.Transaction = this.m_transaction;
+                    DebugManager.Instance.AddLog("Executing: " + comm, this);
+                    cmd.CommandText = comm;
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception exc)
+                {
+                    DebugManager.Instance.AddLog(exc.Message, this);
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public bool EndTransaction(OracleTransactionEndStatus endStatus)
+        {
+            bool resultStatus = true;
+            if (endStatus == OracleTransactionEndStatus.O_COMMIT)
+            {
+                try
+                {
+                    DebugManager.Instance.AddLog("Commit", this);
+                    this.m_transaction.Commit();
+                }
+                catch(Exception excCommit)
+                {
+                    try
+                    {
+                        DebugManager.Instance.AddLog(excCommit.Message, this);
+                        DebugManager.Instance.AddLog("Commit error | Rollback", this);
+                        this.m_transaction.Rollback();
+                    }
+                    catch(Exception excRollback)
+                    {
+                        DebugManager.Instance.AddLog(excRollback.Message, this);
+                        resultStatus = false;
+                    }
+                }
+            }
+            else if(endStatus == OracleTransactionEndStatus.O_ROLLBACK)
+            {
+                try
+                {
+                    DebugManager.Instance.AddLog("Rollback", this);
+                    this.m_transaction.Rollback();
+                }
+                catch (Exception excRollback)
+                {
+                    DebugManager.Instance.AddLog(excRollback.Message, this);
+                    resultStatus = false;
+                }
+            }
+            if (this.m_transaction != null)
+            {
+                this.m_transaction.Dispose();
+            }
+            this.m_transaction = null;
+            return resultStatus;
         }
 
         public bool OpenConnection(string userId, string userPassword, string host, ushort port, string serviceName)
@@ -207,7 +302,7 @@ namespace OracleDatabaseProject
                 }
                 return false;
             }
-            DebugManager.Instance.AddLog("Command result: " + result, this);
+            DebugManager.Instance.AddLog("Command result: " + result, this, true);
             if (isThisFunctionOpenConnection)
             {
                 DebugManager.Instance.AddLog("ExecuteCommand : close connection", this);

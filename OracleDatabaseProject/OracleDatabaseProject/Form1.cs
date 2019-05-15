@@ -283,7 +283,7 @@ namespace OracleDatabaseProject
                 {
                     dBTask.Job = databaseManager.DatabaseData.Marks[0].GetInsertString();
                 }
-                dBTask.FreezeTime = random.Next(0, 100);
+                dBTask.FreezeTime = dBTask.GetFreezeTimeInSec(random.Next(0, 30));
                 dBTaskManager.AddTask(dBTask);
             }
 
