@@ -57,6 +57,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="OracleConnection\Data\Base\Accounts.cs" />
+    <Compile Include="OracleConnection\Data\Base\BaseUpdate.cs" />
     <Compile Include="OracleConnection\Data\Base\IBaseCommand.cs" />
     <Compile Include="OracleConnection\Data\Base\Marks.cs" />
     <Compile Include="OracleConnection\Data\Base\Students.cs" />

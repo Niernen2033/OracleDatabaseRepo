@@ -7,6 +7,12 @@ using System.Xml.Serialization;
 
 namespace OracleDatabaseProject
 {
+    enum GroupsItemsIndex
+    {
+        GROUP_ID,
+        NAME
+    }
+
     class Groups : IInsertCommand
     {
         public int group_id { get; set; }

@@ -277,25 +277,10 @@ namespace OracleDatabaseProject
             }
 
             DatabaseManager databaseManager = new DatabaseManager();
-            Random random = new Random();
             for (int i = 0; i < 50; i++)
             {
-                DBTask dBTask = new DBTask(TaskOwner.USER);
-                if (random.Next(0, 101) < 90)
-                {
-                    if (databaseManager.GenerateMarks(1, false))
-                    {
-                        dBTask.Job = databaseManager.DatabaseData.Marks[0].GetInsertString();
-                    }
-                }
-                else
-                {
-                    Accounts accounts = new Accounts();
-                    accounts.account_id = random.Next(0, 1000);
-                    accounts.password = "KAPPA";
-                    dBTask.Job = accounts.GetUpdateString(accounts, (int)AccountsItemsIndex.PASSWORD);
-                }
-                dBTask.FreezeTime = dBTask.GetFreezeTimeInSec(random.Next(0, 10));
+                DBTask dBTask = new DBTask(TaskOwner.STUDENT);
+                dBTask.GenerateRandomTask();
                 dBTaskManager.AddTask(dBTask);
             }
 

@@ -6,6 +6,15 @@ using System.Threading.Tasks;
 
 namespace OracleDatabaseProject
 {
+    enum StudentsItemsIndex
+    {
+        STUDENT_ID,
+        FIRST_NAME,
+        LAST_NAME,
+        STUDENT_INDEX,
+        ACCOUNT_ID
+    }
+
     class Students : IInsertCommand
     {
         public int student_id { get; set; }

@@ -102,7 +102,7 @@ namespace OracleDatabaseProject
             return true;
         }
 
-        public bool ExecuteCommandInTransaction(string comm, ushort maxExecuteTimeInSec = 0)
+        public bool ExecuteCommandInTransaction(string comm, TaskJobType commType, ushort maxExecuteTimeInSec = 0)
         {
             if(this.m_transaction == null || this.m_connection == null)
             {
@@ -119,19 +119,35 @@ namespace OracleDatabaseProject
 
             using (OracleCommand cmd = this.m_connection.CreateCommand())
             {
+                int result = 0;
                 try
                 {
                     cmd.Connection = this.m_connection;
                     cmd.Transaction = this.m_transaction;
                     DebugManager.Instance.AddLog("Executing: " + comm, this);
                     cmd.CommandText = comm;
-                    cmd.ExecuteNonQuery();
+                    if(commType == TaskJobType.SELECT)
+                    {
+                        result = cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        OracleDataReader reader = cmd.ExecuteReader();
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                result++;
+                            }
+                        }
+                    }
                 }
                 catch (Exception exc)
                 {
                     DebugManager.Instance.AddLog(exc.Message, this);
                     return false;
                 }
+                DebugManager.Instance.AddLog("Command result: " + result, this, true);
             }
 
             return true;

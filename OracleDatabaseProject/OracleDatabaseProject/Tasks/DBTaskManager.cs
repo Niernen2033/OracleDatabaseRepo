@@ -102,7 +102,7 @@ namespace OracleDatabaseProject
 
             if (status)
             {
-                status = connectionManager.ExecuteCommandInTransaction(task.Job);
+                status = connectionManager.ExecuteCommandInTransaction(task.Job, task.TaskJobType);
             }
 
             if (freezeAfter == 1 && status)
@@ -110,11 +110,11 @@ namespace OracleDatabaseProject
                 DebugManager.Instance.AddLog("Sleeping after command: " + task.FreezeTime + "ms", this);
                 Thread.Sleep(task.FreezeTime);
             }
-
+            DebugManager.Instance.AddLog("Command result: " + status.ToString(), this);
             if (status)
             {
                 int howToEnd = random.Next(0, 101);
-                if (howToEnd < 80)
+                if (howToEnd > task.ChanceForRollback)
                 {
                     status = connectionManager.EndTransaction(OracleTransactionEndStatus.O_COMMIT);
                 }
