@@ -10,4 +10,9 @@ namespace OracleDatabaseProject
     {
         string GetInsertString();
     }
+
+    interface IIdentifyBaseItem
+    {
+        object GetItemBasedOnIndex(int index);
+    }
 }

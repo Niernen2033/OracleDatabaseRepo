@@ -11,6 +11,7 @@ namespace OracleDatabaseProject
         ADMIN,
         STUDENT,
         TEACHER,
+        ALL,
     }
 
     enum TaskJobType
@@ -74,7 +75,8 @@ namespace OracleDatabaseProject
             this.ChanceForRollback = 0;
             List<string> possibleJobs = new List<string>()
             {
-                "SELECT * FROM Accounts"
+                "SELECT * FROM Marks WHERE ",
+                "SELECT"
             };
             this.Job = possibleJobs[random.Next(0, possibleJobs.Count)];
         }

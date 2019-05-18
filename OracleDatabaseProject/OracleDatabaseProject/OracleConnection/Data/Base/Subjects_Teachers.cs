@@ -13,7 +13,7 @@ namespace OracleDatabaseProject
         GROUP_ID
     }
 
-    class Subjects_Teachers : IInsertCommand
+    class Subjects_Teachers : IInsertCommand, IIdentifyBaseItem
     {
         public int subject_id { get; set; }
         public int teacher_id { get; set; }
@@ -35,6 +35,29 @@ namespace OracleDatabaseProject
         {
             return "INSERT INTO Subjects_Teachers VALUES(" + this.subject_id + ", " + this.teacher_id + ", " +
                 + this.group_id + ")";
+        }
+
+        public object GetItemBasedOnIndex(int index)
+        {
+            if (index < 0 || index >= Enum.GetValues(typeof(Subjects_TeachersItemsIndex)).Length)
+            {
+                return null;
+            }
+            Subjects_TeachersItemsIndex itemIndex = (Subjects_TeachersItemsIndex)index;
+            object result = null;
+            switch (itemIndex)
+            {
+                case Subjects_TeachersItemsIndex.GROUP_ID:
+                    result = this.group_id;
+                    break;
+                case Subjects_TeachersItemsIndex.SUBJECT_ID:
+                    result = this.subject_id;
+                    break;
+                case Subjects_TeachersItemsIndex.TEACHER_ID:
+                    result = this.teacher_id;
+                    break;
+            }
+            return result;
         }
     }
 }

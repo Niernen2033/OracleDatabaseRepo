@@ -13,7 +13,7 @@ namespace OracleDatabaseProject
         NAME
     }
 
-    class Groups : IInsertCommand
+    class Groups : IInsertCommand, IIdentifyBaseItem
     {
         public int group_id { get; set; }
         public string name { get; set; }
@@ -32,6 +32,26 @@ namespace OracleDatabaseProject
         public string GetInsertString()
         {
             return "INSERT INTO Groups VALUES(NULL,'" + this.name + "')";
+        }
+
+        public object GetItemBasedOnIndex(int index)
+        {
+            if (index < 0 || index >= Enum.GetValues(typeof(GroupsItemsIndex)).Length)
+            {
+                return null;
+            }
+            GroupsItemsIndex itemIndex = (GroupsItemsIndex)index;
+            object result = null;
+            switch (itemIndex)
+            {
+                case GroupsItemsIndex.GROUP_ID:
+                    result = this.group_id;
+                    break;
+                case GroupsItemsIndex.NAME:
+                    result = this.name;
+                    break;
+            }
+            return result;
         }
     }
 }

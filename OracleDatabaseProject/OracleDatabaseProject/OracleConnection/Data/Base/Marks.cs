@@ -15,7 +15,7 @@ namespace OracleDatabaseProject
         MARK
     }
 
-    class Marks : IInsertCommand
+    class Marks : IInsertCommand, IIdentifyBaseItem
     {
         public int mark_id { get; set; }
         public int student_id { get; set; }
@@ -42,6 +42,35 @@ namespace OracleDatabaseProject
         {
             return "INSERT INTO Marks VALUES(NULL," + this.student_id + ", " + this.subject_id + ", " +
                 "TO_DATE('" + this.create_date + "', 'DD.MM.YYYY'), " + this.mark + ")";
+        }
+
+        public object GetItemBasedOnIndex(int index)
+        {
+            if (index < 0 || index >= Enum.GetValues(typeof(MarksItemsIndex)).Length)
+            {
+                return null;
+            }
+            MarksItemsIndex itemIndex = (MarksItemsIndex)index;
+            object result = null;
+            switch(itemIndex)
+            {
+                case MarksItemsIndex.CREATE_DATE:
+                    result = this.create_date;
+                    break;
+                case MarksItemsIndex.MARK:
+                    result = this.mark;
+                    break;
+                case MarksItemsIndex.MARK_ID:
+                    result = this.mark_id;
+                    break;
+                case MarksItemsIndex.STUDENT_ID:
+                    result = this.student_id;
+                    break;
+                case MarksItemsIndex.SUBJECT_ID:
+                    result = this.subject_id;
+                    break;
+            }
+            return result;
         }
     }
 }

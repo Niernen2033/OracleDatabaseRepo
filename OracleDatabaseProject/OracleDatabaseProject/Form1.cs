@@ -251,15 +251,18 @@ namespace OracleDatabaseProject
             if (!commandStatus) return;
         }
 
-        private async void button2_Click(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e)
         {
-            //this.DisableButtons(this.button2);
+            this.DisableButtons(this.button2);
             //DatabaseManager databaseManager = new DatabaseManager();
             //bool status = databaseManager.GenerateDatabase(4000, 7000, true, true);
             //DebugManager.Instance.AddLog(status.ToString(), this, true);
             //this.SendDatabase();
-            //this.EnableButtons(this.button2);
+            BaseOperations baseOperations = new BaseOperations();
+            string a = baseOperations.GetRandomSelectCommand(TaskOwner.STUDENT);
+            DebugManager.Instance.AddLog(a, this);
             this.listBox1.Items.Clear();
+            this.EnableButtons(this.button2);
         }
 
         private async void button3_Click(object sender, EventArgs e)

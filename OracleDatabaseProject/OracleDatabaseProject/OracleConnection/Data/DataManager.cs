@@ -77,7 +77,8 @@ namespace OracleDatabaseProject
         {
             result = new List<string>();
             if (!File.Exists(path))
-            {            
+            {
+                DebugManager.Instance.AddLog("File " + path + " doesnt exists", null);
                 return false;
             }
             try

@@ -28,6 +28,17 @@ namespace OracleDatabaseProject
             this.Subjects_Teachers = new List<Subjects_Teachers>();
         }
 
+        public DatabaseData(DatabaseData databaseData)
+        {
+            this.Accounts = new List<Accounts>(databaseData.Accounts);
+            this.Groups = new List<Groups>(databaseData.Groups);
+            this.Marks = new List<Marks>(databaseData.Marks);
+            this.Students = new List<Students>(databaseData.Students);
+            this.Teachers = new List<Teachers>(databaseData.Teachers);
+            this.Subjects = new List<Subjects>(databaseData.Subjects);
+            this.Subjects_Teachers = new List<Subjects_Teachers>(databaseData.Subjects_Teachers);
+        }
+
         public void Clear()
         {
             this.Accounts.Clear();
@@ -55,7 +66,7 @@ namespace OracleDatabaseProject
         public bool GenerateGroups()
         {
             List<string> _names = new List<string>();
-            if (!DataManager.Load(GlobalVariables.DataToGenerateDatabseDirectory + "gname_db.txt", out _names))
+            if (!DataManager.Load(GlobalVariables.DataToGenerateDatabaseDirectory + "gname_db.txt", out _names))
             {
                 return false;
             }
@@ -72,7 +83,7 @@ namespace OracleDatabaseProject
         public bool GenerateSubjects()
         {
             List<string> _titles = new List<string>();
-            if (!DataManager.Load(GlobalVariables.DataToGenerateDatabseDirectory + "title_db.txt", out _titles))
+            if (!DataManager.Load(GlobalVariables.DataToGenerateDatabaseDirectory + "title_db.txt", out _titles))
             {
                 return false;
             }
@@ -111,15 +122,15 @@ namespace OracleDatabaseProject
             List<string> _logins = new List<string>();
             List<string> _passwords = new List<string>();
             List<string> _emails = new List<string>();
-            if (!DataManager.Load(GlobalVariables.DataToGenerateDatabseDirectory + "logins_db.txt", out _logins))
+            if (!DataManager.Load(GlobalVariables.DataToGenerateDatabaseDirectory + "logins_db.txt", out _logins))
             {
                 return false;
             }
-            if (!DataManager.Load(GlobalVariables.DataToGenerateDatabseDirectory + "password_db.txt", out _passwords))
+            if (!DataManager.Load(GlobalVariables.DataToGenerateDatabaseDirectory + "password_db.txt", out _passwords))
             {
                 return false;
             }
-            if (!DataManager.Load(GlobalVariables.DataToGenerateDatabseDirectory + "email_db.txt", out _emails))
+            if (!DataManager.Load(GlobalVariables.DataToGenerateDatabaseDirectory + "email_db.txt", out _emails))
             {
                 return false;
             }
@@ -143,11 +154,11 @@ namespace OracleDatabaseProject
         {
             List<string> _firstnames = new List<string>();
             List<string> _surnames = new List<string>();
-            if (!DataManager.Load(GlobalVariables.DataToGenerateDatabseDirectory + "firstnames_db.txt", out _firstnames))
+            if (!DataManager.Load(GlobalVariables.DataToGenerateDatabaseDirectory + "firstnames_db.txt", out _firstnames))
             {
                 return false;
             }
-            if (!DataManager.Load(GlobalVariables.DataToGenerateDatabseDirectory + "surnames_db.txt", out _surnames))
+            if (!DataManager.Load(GlobalVariables.DataToGenerateDatabaseDirectory + "surnames_db.txt", out _surnames))
             {
                 return false;
             }
@@ -275,7 +286,7 @@ namespace OracleDatabaseProject
             {
                 if(save)
                 {
-                    if(!DataManager.Save<Groups>(GlobalVariables.GeneratedDataDatabseDirectory + "GroupsTable.txt", this.DatabaseData.Groups))
+                    if(!DataManager.Save<Groups>(GlobalVariables.GeneratedDataDatabaseDirectory + "GroupsTable.txt", this.DatabaseData.Groups))
                     {
                         DebugManager.Instance.AddLog("Groups saving error", this);
                     }
@@ -290,7 +301,7 @@ namespace OracleDatabaseProject
             {
                 if (save)
                 {
-                    if (!DataManager.Save<Subjects>(GlobalVariables.GeneratedDataDatabseDirectory + "SubjectsTable.txt", this.DatabaseData.Subjects))
+                    if (!DataManager.Save<Subjects>(GlobalVariables.GeneratedDataDatabaseDirectory + "SubjectsTable.txt", this.DatabaseData.Subjects))
                     {
                         DebugManager.Instance.AddLog("Subjects saving error", this);
                     }
@@ -305,7 +316,7 @@ namespace OracleDatabaseProject
             {
                 if (save)
                 {
-                    if (!DataManager.Save<Accounts>(GlobalVariables.GeneratedDataDatabseDirectory + "AccountsTable.txt", this.DatabaseData.Accounts))
+                    if (!DataManager.Save<Accounts>(GlobalVariables.GeneratedDataDatabaseDirectory + "AccountsTable.txt", this.DatabaseData.Accounts))
                     {
                         DebugManager.Instance.AddLog("Accounts saving error", this);
                     }
@@ -320,11 +331,11 @@ namespace OracleDatabaseProject
             {
                 if (save)
                 {
-                    if (!DataManager.Save<Students>(GlobalVariables.GeneratedDataDatabseDirectory + "StudentsTable.txt", this.DatabaseData.Students))
+                    if (!DataManager.Save<Students>(GlobalVariables.GeneratedDataDatabaseDirectory + "StudentsTable.txt", this.DatabaseData.Students))
                     {
                         DebugManager.Instance.AddLog("Students saving error", this);
                     }
-                    if (!DataManager.Save<Teachers>(GlobalVariables.GeneratedDataDatabseDirectory + "TeachersTable.txt", this.DatabaseData.Teachers))
+                    if (!DataManager.Save<Teachers>(GlobalVariables.GeneratedDataDatabaseDirectory + "TeachersTable.txt", this.DatabaseData.Teachers))
                     {
                         DebugManager.Instance.AddLog("Teachers saving error", this);
                     }
@@ -339,7 +350,7 @@ namespace OracleDatabaseProject
             {
                 if (save)
                 {
-                    if (!DataManager.Save<Marks>(GlobalVariables.GeneratedDataDatabseDirectory + "MarksTable.txt", this.DatabaseData.Marks))
+                    if (!DataManager.Save<Marks>(GlobalVariables.GeneratedDataDatabaseDirectory + "MarksTable.txt", this.DatabaseData.Marks))
                     {
                         DebugManager.Instance.AddLog("Marks saving error", this);
                     }
@@ -354,7 +365,7 @@ namespace OracleDatabaseProject
             {
                 if (save)
                 {
-                    if (!DataManager.Save<Subjects_Teachers>(GlobalVariables.GeneratedDataDatabseDirectory + "Subjects_TeachersTable.txt", this.DatabaseData.Subjects_Teachers))
+                    if (!DataManager.Save<Subjects_Teachers>(GlobalVariables.GeneratedDataDatabaseDirectory + "Subjects_TeachersTable.txt", this.DatabaseData.Subjects_Teachers))
                     {
                         DebugManager.Instance.AddLog("Subjects_Teachers saving error", this);
                     }
@@ -396,7 +407,7 @@ namespace OracleDatabaseProject
                 }
             }
 
-            if (!DataManager.Save<string,int>(GlobalVariables.GeneratedDataDatabseDirectory + "AccountsSTTableStatistics.txt", Students_Teachers_Count))
+            if (!DataManager.Save<string,int>(GlobalVariables.GeneratedDataDatabaseDirectory + "AccountsSTTableStatistics.txt", Students_Teachers_Count))
             {
                 return false;
             }
@@ -415,7 +426,7 @@ namespace OracleDatabaseProject
                 }
             }
 
-            if (!DataManager.Save<string, int>(GlobalVariables.GeneratedDataDatabseDirectory + "StudentsNamesTableStatistics.txt", Students_Names))
+            if (!DataManager.Save<string, int>(GlobalVariables.GeneratedDataDatabaseDirectory + "StudentsNamesTableStatistics.txt", Students_Names))
             {
                 return false;
             }
@@ -443,11 +454,11 @@ namespace OracleDatabaseProject
                 }
             }
 
-            if (!DataManager.Save<int, int>(GlobalVariables.GeneratedDataDatabseDirectory + "MarksCountTableStatistics.txt", Marks_Count))
+            if (!DataManager.Save<int, int>(GlobalVariables.GeneratedDataDatabaseDirectory + "MarksCountTableStatistics.txt", Marks_Count))
             {
                 return false;
             }
-            if (!DataManager.Save<int, int>(GlobalVariables.GeneratedDataDatabseDirectory + "MarksDateTableStatistics.txt", Marks_Date))
+            if (!DataManager.Save<int, int>(GlobalVariables.GeneratedDataDatabaseDirectory + "MarksDateTableStatistics.txt", Marks_Date))
             {
                 return false;
             }
@@ -461,7 +472,7 @@ namespace OracleDatabaseProject
             List<string> temp_data = new List<string>();
 
             //Group *******************************************
-            if(!DataManager.Load(GlobalVariables.GeneratedDataDatabseDirectory + "GroupsTable.txt", out temp_data))
+            if(!DataManager.Load(GlobalVariables.GeneratedDataDatabaseDirectory + "GroupsTable.txt", out temp_data))
             {
                 return false;
             }
@@ -487,7 +498,7 @@ namespace OracleDatabaseProject
             }
 
             //Accounts *******************************************
-            if (!DataManager.Load(GlobalVariables.GeneratedDataDatabseDirectory + "AccountsTable.txt", out temp_data))
+            if (!DataManager.Load(GlobalVariables.GeneratedDataDatabaseDirectory + "AccountsTable.txt", out temp_data))
             {
                 return false;
             }
@@ -517,7 +528,7 @@ namespace OracleDatabaseProject
             }
 
             //Marks *******************************************
-            if (!DataManager.Load(GlobalVariables.GeneratedDataDatabseDirectory + "MarksTable.txt", out temp_data))
+            if (!DataManager.Load(GlobalVariables.GeneratedDataDatabaseDirectory + "MarksTable.txt", out temp_data))
             {
                 return false;
             }
@@ -546,7 +557,7 @@ namespace OracleDatabaseProject
             }
 
             //Students *******************************************
-            if (!DataManager.Load(GlobalVariables.GeneratedDataDatabseDirectory + "StudentsTable.txt", out temp_data))
+            if (!DataManager.Load(GlobalVariables.GeneratedDataDatabaseDirectory + "StudentsTable.txt", out temp_data))
             {
                 return false;
             }
@@ -575,7 +586,7 @@ namespace OracleDatabaseProject
             }
 
             //Subjects_Teachers *******************************************
-            if (!DataManager.Load(GlobalVariables.GeneratedDataDatabseDirectory + "Subjects_TeachersTable.txt", out temp_data))
+            if (!DataManager.Load(GlobalVariables.GeneratedDataDatabaseDirectory + "Subjects_TeachersTable.txt", out temp_data))
             {
                 return false;
             }
@@ -602,7 +613,7 @@ namespace OracleDatabaseProject
             }
 
             //Subjects *******************************************
-            if (!DataManager.Load(GlobalVariables.GeneratedDataDatabseDirectory + "SubjectsTable.txt", out temp_data))
+            if (!DataManager.Load(GlobalVariables.GeneratedDataDatabaseDirectory + "SubjectsTable.txt", out temp_data))
             {
                 return false;
             }
@@ -628,7 +639,7 @@ namespace OracleDatabaseProject
             }
 
             //Teachers *******************************************
-            if (!DataManager.Load(GlobalVariables.GeneratedDataDatabseDirectory + "TeachersTable.txt", out temp_data))
+            if (!DataManager.Load(GlobalVariables.GeneratedDataDatabaseDirectory + "TeachersTable.txt", out temp_data))
             {
                 return false;
             }

@@ -12,7 +12,7 @@ namespace OracleDatabaseProject
         TITLE
     }
 
-    class Subjects : IInsertCommand
+    class Subjects : IInsertCommand, IIdentifyBaseItem
     {
         public int subject_id { get; set; }
         public string title { get; set; }
@@ -31,6 +31,26 @@ namespace OracleDatabaseProject
         public string GetInsertString()
         {
             return "INSERT INTO Subjects VALUES(NULL,'" + this.title + "')";
+        }
+
+        public object GetItemBasedOnIndex(int index)
+        {
+            if (index < 0 || index >= Enum.GetValues(typeof(SubjectsItemsIndex)).Length)
+            {
+                return null;
+            }
+            SubjectsItemsIndex itemIndex = (SubjectsItemsIndex)index;
+            object result = null;
+            switch (itemIndex)
+            {
+                case SubjectsItemsIndex.SUBJECT_ID:
+                    result = this.subject_id;
+                    break;
+                case SubjectsItemsIndex.TITLE:
+                    result = this.title;
+                    break;
+            }
+            return result;
         }
     }
 }

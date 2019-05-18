@@ -15,7 +15,7 @@ namespace OracleDatabaseProject
         ACCOUNT_ID
     }
 
-    class Students : IInsertCommand
+    class Students : IInsertCommand, IIdentifyBaseItem
     {
         public int student_id { get; set; }
         public string first_name { get; set; }
@@ -42,6 +42,35 @@ namespace OracleDatabaseProject
         {
             return "INSERT INTO Students VALUES(NULL,'" + this.first_name + "', '" + this.last_name + "', "
                 + this.student_index + ", " + this.account_id + ")";
+        }
+
+        public object GetItemBasedOnIndex(int index)
+        {
+            if (index < 0 || index >= Enum.GetValues(typeof(StudentsItemsIndex)).Length)
+            {
+                return null;
+            }
+            StudentsItemsIndex itemIndex = (StudentsItemsIndex)index;
+            object result = null;
+            switch (itemIndex)
+            {
+                case StudentsItemsIndex.ACCOUNT_ID:
+                    result = this.account_id;
+                    break;
+                case StudentsItemsIndex.FIRST_NAME:
+                    result = this.first_name;
+                    break;
+                case StudentsItemsIndex.LAST_NAME:
+                    result = this.last_name;
+                    break;
+                case StudentsItemsIndex.STUDENT_ID:
+                    result = this.student_id;
+                    break;
+                case StudentsItemsIndex.STUDENT_INDEX:
+                    result = this.student_index;
+                    break;
+            }
+            return result;
         }
     }
 }
