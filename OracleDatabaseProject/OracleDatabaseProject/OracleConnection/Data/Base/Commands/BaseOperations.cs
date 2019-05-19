@@ -13,15 +13,17 @@ namespace OracleDatabaseProject
         private bool m_isInsertTemplatesImported;
         private Random m_random;
         private CommandBuilder m_commandBuilder;
-        private DatabaseData m_databaseData;
-        private bool m_isDatabaseLoaded;
+        private DatabaseData m_realDatabaseData;
+        private DatabaseManager m_databaseManager;
+        private bool m_isRealDatabaseLoaded;
 
         public BaseOperations()
         {
             this.m_insertTemplates = new List<string>();
             this.m_isInsertTemplatesImported = false;
-            this.m_databaseData = new DatabaseData();
-            this.m_isDatabaseLoaded = false;
+            this.m_databaseManager = new DatabaseManager();
+            this.m_realDatabaseData = new DatabaseData();
+            this.m_isRealDatabaseLoaded = false;
 
 
             this.m_random = new Random();
@@ -39,67 +41,150 @@ namespace OracleDatabaseProject
                 return null;
             }
 
-            object result = null;
-            switch(baseObjectClass)
+            if (random)
+            {
+                if (!this.m_databaseManager.GenerateDatabase(2, 3, false, false))
+                {
+                    return null;
+                }
+            }
+
+            int itemIndex = -1;
+            IIdentifyBaseItem baseItem = null;
+            switch (baseObjectClass)
             {
                 case BaseObjectClasses.Accounts:
                     {
+                        AccountsItemsIndex accountsIndex;
+                        if (!Enum.TryParse(baseIdentifiers[1], true, out accountsIndex))
+                        {
+                            return null;
+                        }
+                        itemIndex = (int)accountsIndex;
+                        if (random)
+                        {
+                            baseItem = this.m_databaseManager.DatabaseData.Accounts[0];
+                        }
+                        else
+                        {
+                            baseItem = this.m_realDatabaseData.Accounts[this.m_random.Next(0, this.m_realDatabaseData.Accounts.Count)];
+                        }
                         break;
                     }
                 case BaseObjectClasses.Groups:
                     {
+                        GroupsItemsIndex groupsIndex;
+                        if (!Enum.TryParse(baseIdentifiers[1], true, out groupsIndex))
+                        {
+                            return null;
+                        }
+                        itemIndex = (int)groupsIndex;
+                        if (random)
+                        {
+                            baseItem = this.m_databaseManager.DatabaseData.Groups[0];
+                        }
+                        else
+                        {
+                            baseItem = this.m_realDatabaseData.Groups[this.m_random.Next(0, this.m_realDatabaseData.Groups.Count)];
+                        }
                         break;
                     }
                 case BaseObjectClasses.Marks:
                     {
-                        MarksItemsIndex itemIndex;
-                        if (!Enum.TryParse(baseIdentifiers[1], true, out itemIndex))
+                        MarksItemsIndex marksIndex;
+                        if (!Enum.TryParse(baseIdentifiers[1], true, out marksIndex))
                         {
                             return null;
                         }
-                        if(random)
+                        itemIndex = (int)marksIndex;
+                        if (random)
                         {
-
+                            baseItem = this.m_databaseManager.DatabaseData.Marks[0];
                         }
                         else
                         {
-                            int markIndex = this.m_random.Next(0, this.m_databaseData.Marks.Count);
-                            Marks mark = this.m_databaseData.Marks[markIndex];
-                            result = mark.GetItemBasedOnIndex((int)itemIndex);
+                            baseItem = this.m_realDatabaseData.Marks[this.m_random.Next(0, this.m_realDatabaseData.Marks.Count)];
                         }
                         break;
                     }
                 case BaseObjectClasses.Students:
                     {
+                        StudentsItemsIndex studentsIndex;
+                        if (!Enum.TryParse(baseIdentifiers[1], true, out studentsIndex))
+                        {
+                            return null;
+                        }
+                        itemIndex = (int)studentsIndex;
+                        if (random)
+                        {
+                            baseItem = this.m_databaseManager.DatabaseData.Students[0];
+                        }
+                        else
+                        {
+                            baseItem = this.m_realDatabaseData.Students[this.m_random.Next(0, this.m_realDatabaseData.Students.Count)];
+                        }
                         break;
                     }
                 case BaseObjectClasses.Subjects:
                     {
-                        SubjectsItemsIndex itemIndex;
-                        if (!Enum.TryParse(baseIdentifiers[1], true, out itemIndex))
+                        SubjectsItemsIndex subjectsIndex;
+                        if (!Enum.TryParse(baseIdentifiers[1], true, out subjectsIndex))
                         {
                             return null;
                         }
+                        itemIndex = (int)subjectsIndex;
                         if (random)
                         {
-
+                            baseItem = this.m_databaseManager.DatabaseData.Subjects[0];
                         }
                         else
                         {
-                            int subjectIndex = this.m_random.Next(0, this.m_databaseData.Subjects.Count);
-                            Subjects subject = this.m_databaseData.Subjects[subjectIndex];
-                            result = subject.GetItemBasedOnIndex((int)itemIndex);
+                            baseItem = this.m_realDatabaseData.Subjects[this.m_random.Next(0, this.m_realDatabaseData.Subjects.Count)];
                         }
                         break;
                     }
                 case BaseObjectClasses.Subjects_Teachers:
                     {
+                        Subjects_TeachersItemsIndex subjectsTeachersIndex;
+                        if (!Enum.TryParse(baseIdentifiers[1], true, out subjectsTeachersIndex))
+                        {
+                            return null;
+                        }
+                        itemIndex = (int)subjectsTeachersIndex;
+                        if (random)
+                        {
+                            baseItem = this.m_databaseManager.DatabaseData.Subjects_Teachers[0];
+                        }
+                        else
+                        {
+                            baseItem = this.m_realDatabaseData.Subjects_Teachers[this.m_random.Next(0, this.m_realDatabaseData.Subjects_Teachers.Count)];
+                        }
                         break;
                     }
                 case BaseObjectClasses.Teachers:
                     {
+                        TeachersItemsIndex teachersIndex;
+                        if (!Enum.TryParse(baseIdentifiers[1], true, out teachersIndex))
+                        {
+                            return null;
+                        }
+                        itemIndex = (int)teachersIndex;
+                        if (random)
+                        {
+                            baseItem = this.m_databaseManager.DatabaseData.Teachers[0];
+                        }
+                        else
+                        {
+                            baseItem = this.m_realDatabaseData.Teachers[this.m_random.Next(0, this.m_realDatabaseData.Teachers.Count)];
+                        }
                         break;
                     }
+            }
+
+            object result = null;
+            if(baseItem != null && itemIndex != -1)
+            {
+                result = baseItem.GetItemBasedOnIndex(itemIndex);
             }
 
             return result;
@@ -112,15 +197,16 @@ namespace OracleDatabaseProject
             {
                 return string.Empty;
             }
-            if(!this.m_isDatabaseLoaded)
+            if(!this.m_isRealDatabaseLoaded)
             {
-                DatabaseManager databaseManager = new DatabaseManager();
-                if(!databaseManager.LoadDatabaseFromFiles())
+                if(!this.m_databaseManager.LoadDatabaseFromFiles())
                 {
+                    this.m_databaseManager.Clear();
                     return string.Empty;
                 }
-                this.m_databaseData = new DatabaseData(databaseManager.DatabaseData);
-                this.m_isDatabaseLoaded = true;
+                this.m_realDatabaseData = new DatabaseData(this.m_databaseManager.DatabaseData);
+                this.m_databaseManager.Clear();
+                this.m_isRealDatabaseLoaded = true;
             }
 
             int randomCommandIndex = this.m_random.Next(0, commands.Count);
@@ -129,7 +215,7 @@ namespace OracleDatabaseProject
             for (int i = 0; i < this.m_commandBuilder.ArgumentsCount; i++)
             {
                 int tempArgumentId = this.m_commandBuilder.CommandArguments[i].ArgumentId;
-                object tempArgumentValue = this.GetItemFromDatabase(this.m_commandBuilder.CommandArguments[i], false);
+                object tempArgumentValue = this.GetItemFromDatabase(this.m_commandBuilder.CommandArguments[i], true);
                 if(!this.m_commandBuilder.SetArgument(tempArgumentId, tempArgumentValue))
                 {
                     return string.Empty;
@@ -149,7 +235,7 @@ namespace OracleDatabaseProject
             }
             for (int i = 0; i < tempInsertTemplates.Count; i++)
             {
-                if (!tempInsertTemplates[i].Contains("#"))
+                if (!tempInsertTemplates[i].Contains("#") && tempInsertTemplates[i] != string.Empty)
                 {
                     this.m_insertTemplates.Add(tempInsertTemplates[i]);
                 }

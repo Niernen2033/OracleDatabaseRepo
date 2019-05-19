@@ -260,7 +260,7 @@ namespace OracleDatabaseProject
             //this.SendDatabase();
             BaseOperations baseOperations = new BaseOperations();
             string a = baseOperations.GetRandomSelectCommand(TaskOwner.STUDENT);
-            DebugManager.Instance.AddLog(a, this);
+            this.richTextBox1.Text += a + "\n";
             this.listBox1.Items.Clear();
             this.EnableButtons(this.button2);
         }

@@ -63,7 +63,12 @@ namespace OracleDatabaseProject
             this.DatabaseData = new DatabaseData();
         }
 
-        public bool GenerateGroups()
+        public void Clear()
+        {
+            this.DatabaseData.Clear();
+        }
+
+        private bool GenerateGroups()
         {
             List<string> _names = new List<string>();
             if (!DataManager.Load(GlobalVariables.DataToGenerateDatabaseDirectory + "gname_db.txt", out _names))
@@ -80,7 +85,7 @@ namespace OracleDatabaseProject
             return true;
         }
 
-        public bool GenerateSubjects()
+        private bool GenerateSubjects()
         {
             List<string> _titles = new List<string>();
             if (!DataManager.Load(GlobalVariables.DataToGenerateDatabaseDirectory + "title_db.txt", out _titles))
@@ -97,7 +102,7 @@ namespace OracleDatabaseProject
             return true;
         }
 
-        private int GetTrueWithProb(int probForTrue)
+        public int GetTrueWithProb(int probForTrue)
         {
             int tempRandom = this.random.Next(0, 101);
             if(tempRandom < probForTrue)
@@ -117,7 +122,7 @@ namespace OracleDatabaseProject
             return startDate.AddDays(this.random.Next(range));
         }
 
-        public bool GenerateAccounts(uint count)
+        private bool GenerateAccounts(uint count)
         {
             List<string> _logins = new List<string>();
             List<string> _passwords = new List<string>();
@@ -150,7 +155,7 @@ namespace OracleDatabaseProject
             return true;
         }
 
-        public bool GenerateStudentsTeachers()
+        private bool GenerateStudentsTeachers()
         {
             List<string> _firstnames = new List<string>();
             List<string> _surnames = new List<string>();
@@ -194,9 +199,8 @@ namespace OracleDatabaseProject
             return true;
         }
 
-        public bool GenerateMarks(uint count, bool realDate = true)
+        private bool GenerateMarks(uint count)
         {
-            this.DatabaseData.Marks.Clear();
             for (int i = 0; i < count; i++)
             {
                 Marks mark = new Marks();
@@ -204,7 +208,7 @@ namespace OracleDatabaseProject
                 mark.student_id = this.random.Next(1, this.DatabaseData.Students.Count + 1);
                 mark.subject_id = this.random.Next(1, this.DatabaseData.Subjects.Count + 1);
                 int chance = this.random.Next(0, 101);
-                if(chance <= 20)
+                if (chance <= 20)
                 {
                     mark.mark = this.randomGauss.Next(2, 4);
                 }
@@ -216,16 +220,9 @@ namespace OracleDatabaseProject
                 {
                     mark.mark = this.randomGauss.Next(4, 6);
                 }
-                if (realDate)
-                {
-                    Accounts account = this.DatabaseData.Accounts[this.DatabaseData.Students[mark.student_id - 1].account_id - 1];
-                    DateTime accCreateDate = Convert.ToDateTime(account.create_date);
-                    mark.create_date = this.GenerateRandomDate(accCreateDate.Year, accCreateDate.Month, accCreateDate.Day).ToShortDateString();
-                }
-                else
-                {
-                    mark.create_date = this.GenerateRandomDate().ToShortDateString();
-                }
+                Accounts account = this.DatabaseData.Accounts[this.DatabaseData.Students[mark.student_id - 1].account_id - 1];
+                DateTime accCreateDate = Convert.ToDateTime(account.create_date);
+                mark.create_date = this.GenerateRandomDate(accCreateDate.Year, accCreateDate.Month, accCreateDate.Day).ToShortDateString();
                 this.DatabaseData.Marks.Add(mark);
             }
             return true;
@@ -255,7 +252,7 @@ namespace OracleDatabaseProject
             return result;
         }
 
-        public bool Generate_Subjects_Teachers()
+        private bool Generate_Subjects_Teachers()
         {
             foreach(Teachers teacher in this.DatabaseData.Teachers)
             {
