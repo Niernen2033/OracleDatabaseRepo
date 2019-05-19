@@ -1,0 +1,1 @@
+teacher:INSER INTO Accounts VALUES(NULL, {str_Accounts.login}, {str_Accounts.password}, {str_Accounts.email}, {int_Accounts.is_teacher}, {dat_Accounts.create_date}):{str_Accounts.login};{str_Accounts.password};{str_Accounts.email};{int_Accounts.is_teacher};{dat_Accounts.create_date}&A {str_Accounts.password}:{str_Accounts.password}

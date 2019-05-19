@@ -59,6 +59,7 @@
     <Compile Include="OracleConnection\Data\Base\Accounts.cs" />
     <Compile Include="OracleConnection\Data\Base\Commands\BaseOperations.cs" />
     <Compile Include="OracleConnection\Data\Base\Commands\CommandBuilder.cs" />
+    <Compile Include="OracleConnection\Data\Base\Commands\CommandTemplate.cs" />
     <Compile Include="OracleConnection\Data\Base\Commands\IBaseCommand.cs" />
     <Compile Include="OracleConnection\Data\Base\Marks.cs" />
     <Compile Include="OracleConnection\Data\Base\Students.cs" />

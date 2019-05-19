@@ -100,9 +100,12 @@ namespace OracleDatabaseProject
                 Thread.Sleep(task.FreezeTime);
             }
 
-            if (status)
+            for (int i = 0; i < task.Jobs.Count; i++)
             {
-                status = connectionManager.ExecuteCommandInTransaction(task.Job, task.TaskJobType);
+                if (status)
+                {
+                    status = connectionManager.ExecuteCommandInTransaction(task.Jobs[i], task.TaskJobType);
+                }
             }
 
             if (freezeAfter == 1 && status)

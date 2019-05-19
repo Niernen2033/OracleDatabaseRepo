@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 namespace OracleDatabaseProject
 {
     enum BaseObjectClasses { Accounts, Groups, Marks, Students, Subjects, Subjects_Teachers, Teachers };
     class BaseOperations
     {
-        private List<string> m_insertTemplates;
-        private bool m_isInsertTemplatesImported;
+        private CommandTemplate m_insertTemplates;
+        private CommandTemplate m_updateTemplates;
+        private CommandTemplate m_selectTemplates;
         private Random m_random;
         private CommandBuilder m_commandBuilder;
         private DatabaseData m_realDatabaseData;
@@ -19,8 +21,9 @@ namespace OracleDatabaseProject
 
         public BaseOperations()
         {
-            this.m_insertTemplates = new List<string>();
-            this.m_isInsertTemplatesImported = false;
+            this.m_insertTemplates = new CommandTemplate(TaskJobType.INSERT);
+            this.m_updateTemplates = new CommandTemplate(TaskJobType.UPDATE);
+            this.m_selectTemplates = new CommandTemplate(TaskJobType.SELECT);
             this.m_databaseManager = new DatabaseManager();
             this.m_realDatabaseData = new DatabaseData();
             this.m_isRealDatabaseLoaded = false;
@@ -30,7 +33,7 @@ namespace OracleDatabaseProject
             this.m_commandBuilder = new CommandBuilder();
         }
 
-        public object GetItemFromDatabase(CommandArgument commandArgument, bool random)
+        private object GetItemFromDatabase(CommandArgument commandArgument, bool random)
         {
             string argumentTypeIdentifier = this.m_commandBuilder.GetArgumentTypeIdentifier(commandArgument.ArgumentType);
             string clearCommandArguments = commandArgument.ArgumentName.Replace(argumentTypeIdentifier, "").Replace("{", "").Replace("}", "");
@@ -190,69 +193,186 @@ namespace OracleDatabaseProject
             return result;
         }
 
-        public string GetRandomSelectCommand(TaskOwner taskType)
+        public List<string> GetRandomCommand(TaskJobType jobType, TaskOwner taskOwnerType, bool random = false)
         {
-            List<string> commands = this.GetSpecyficSelectTemplates(taskType);
-            if(commands.Count == 0)
+            List<string> commands = this.GetSpecyficTemplates(jobType, taskOwnerType);
+            if (commands.Count == 0)
             {
-                return string.Empty;
+                return null;
             }
-            if(!this.m_isRealDatabaseLoaded)
+            if (!this.m_isRealDatabaseLoaded)
             {
-                if(!this.m_databaseManager.LoadDatabaseFromFiles())
+                if (!this.m_databaseManager.LoadDatabaseFromFiles())
                 {
                     this.m_databaseManager.Clear();
-                    return string.Empty;
+                    return null;
                 }
                 this.m_realDatabaseData = new DatabaseData(this.m_databaseManager.DatabaseData);
                 this.m_databaseManager.Clear();
                 this.m_isRealDatabaseLoaded = true;
             }
 
+            List<string> result = new List<string>();
             int randomCommandIndex = this.m_random.Next(0, commands.Count);
-            string[] command_arguments = commands[randomCommandIndex].Split(':');
-            this.m_commandBuilder.SetRawCommand(command_arguments[0], command_arguments[1]);
-            for (int i = 0; i < this.m_commandBuilder.ArgumentsCount; i++)
+            string[] multipleCommands = commands[randomCommandIndex].Split('&');
+            CommandBuilder saveMultipleCommand = null;
+            for (int i = 0; i < multipleCommands.Length; i++)
             {
-                int tempArgumentId = this.m_commandBuilder.CommandArguments[i].ArgumentId;
-                object tempArgumentValue = this.GetItemFromDatabase(this.m_commandBuilder.CommandArguments[i], true);
-                if(!this.m_commandBuilder.SetArgument(tempArgumentId, tempArgumentValue))
+                string[] command_arguments = multipleCommands[i].Split(':');
+                this.m_commandBuilder.SetRawCommand(command_arguments[0], command_arguments[1]);
+                bool commandStatus = true;
+                for (int j = 0; j < this.m_commandBuilder.ArgumentsCount; j++)
                 {
-                    return string.Empty;
+                    int tempArgumentId = this.m_commandBuilder.CommandArguments[j].ArgumentId;
+                    object tempArgumentValue = null;
+                    if (i != 0 && saveMultipleCommand != null)
+                    {
+                        for (int k = 0; k < saveMultipleCommand.ArgumentsCount; k++)
+                        {
+                            if (this.m_commandBuilder.CommandArguments[j].ArgumentName == saveMultipleCommand.CommandArguments[k].ArgumentName)
+                            {
+                                tempArgumentValue = saveMultipleCommand.CommandArguments[k].ArgumentValue;
+                                break;
+                            }
+                        }
+                    }
+                    if(tempArgumentValue == null)
+                    {
+                        tempArgumentValue = this.GetItemFromDatabase(this.m_commandBuilder.CommandArguments[j], random);
+                    }
+                    if (!this.m_commandBuilder.SetArgument(tempArgumentId, tempArgumentValue))
+                    {
+                        commandStatus = false;
+                        break;
+                    }
+                }
+                if (commandStatus)
+                {
+                    saveMultipleCommand = new CommandBuilder(this.m_commandBuilder);
+                    result.Add(this.m_commandBuilder.GetCommand());
                 }
             }
 
-            return this.m_commandBuilder.GetCommand();
+            return result;
         }
 
-        private bool ImportAllSelectTemplates()
+        private bool ImportTemplates(TaskJobType jobType)
         {
-            this.m_insertTemplates.Clear();
-            List<string> tempInsertTemplates = new List<string>();
-            if(!DataManager.Load(GlobalVariables.DatabaseCommandDirectory + "Select.txt", out tempInsertTemplates))
+            this.ClearTemplate(jobType);
+            List<string> tempData = new List<string>();
+            switch (jobType)
+            {
+                case TaskJobType.INSERT:
+                    {
+                        if (!DataManager.Load(GlobalVariables.DatabaseCommandDirectory + "Insert.txt", out tempData))
+                        {
+                            return false;
+                        }
+                        break;
+                    }
+                case TaskJobType.SELECT:
+                    {
+                        if (!DataManager.Load(GlobalVariables.DatabaseCommandDirectory + "Select.txt", out tempData))
+                        {
+                            return false;
+                        }
+                        break;
+                    }
+                case TaskJobType.UPDATE:
+                    {
+                        if (!DataManager.Load(GlobalVariables.DatabaseCommandDirectory + "Update.txt", out tempData))
+                        {
+                            return false;
+                        }
+                        break;
+                    }
+                default:
+                    return false;
+            }
+            CommandTemplate commandTemplate = this.GetTemplateBasedOnType(jobType);
+            if(commandTemplate == null)
             {
                 return false;
             }
-            for (int i = 0; i < tempInsertTemplates.Count; i++)
+
+            List<string> tempTemplate = new List<string>();
+            for (int i = 0; i < tempData.Count; i++)
             {
-                if (!tempInsertTemplates[i].Contains("#") && tempInsertTemplates[i] != string.Empty)
+                if (!tempData[i].Contains("#") && tempData[i] != string.Empty)
                 {
-                    this.m_insertTemplates.Add(tempInsertTemplates[i]);
+                    tempTemplate.Add(tempData[i]);
                 }
             }
-            this.m_isInsertTemplatesImported = true;
+            commandTemplate.SetTemplates(tempTemplate);
             return true;
         }
 
-        private List<string> GetSpecyficSelectTemplates(TaskOwner taskType, bool reImport = false)
+        private void ClearTemplate(TaskJobType jobType)
+        {
+            switch (jobType)
+            {
+                case TaskJobType.INSERT:
+                    this.m_insertTemplates.Clear();
+                    break;
+                case TaskJobType.SELECT:
+                    this.m_selectTemplates.Clear();
+                    break;
+                case TaskJobType.UPDATE:
+                    this.m_updateTemplates.Clear();
+                    break;
+            }
+        }
+
+        private void ClearAllTemplates()
+        {
+            this.ClearTemplate(TaskJobType.INSERT);
+            this.ClearTemplate(TaskJobType.SELECT);
+            this.ClearTemplate(TaskJobType.UPDATE);
+        }
+
+        private bool ImportAllTemplates()
+        {
+            this.ClearAllTemplates();
+            bool insertSatus = this.ImportTemplates(TaskJobType.INSERT);
+            bool selectSatus = this.ImportTemplates(TaskJobType.SELECT);
+            bool updateSatus = this.ImportTemplates(TaskJobType.UPDATE);
+            return (insertSatus && selectSatus && updateSatus);
+        }
+
+        private CommandTemplate GetTemplateBasedOnType(TaskJobType jobType)
+        {
+            CommandTemplate result = null;
+            switch (jobType)
+            {
+                case TaskJobType.INSERT:
+                    result = this.m_insertTemplates;
+                    break;
+                case TaskJobType.SELECT:
+                    result = this.m_selectTemplates;
+                    break;
+                case TaskJobType.UPDATE:
+                    result = this.m_updateTemplates;
+                    break;
+            }
+            return result;
+        }
+
+        private List<string> GetSpecyficTemplates(TaskJobType jobType, TaskOwner taskType, bool reImport = false)
         {
             if(this.m_insertTemplates == null)
             {
                 return new List<string>();
             }
-            if(!this.m_isInsertTemplatesImported || reImport)
+
+            CommandTemplate commandTemplate = this.GetTemplateBasedOnType(jobType);
+            if(commandTemplate == null)
             {
-                if(!this.ImportAllSelectTemplates())
+                return new List<string>();
+            }
+
+            if (!commandTemplate.IsLoaded || reImport)
+            {
+                if (!this.ImportTemplates(commandTemplate.TemplateType))
                 {
                     return new List<string>();
                 }
@@ -260,14 +380,15 @@ namespace OracleDatabaseProject
 
             List<string> result = new List<string>();
             string specyficType = Enum.GetName(typeof(TaskOwner), taskType).ToLower();
-            for(int i=0; i<this.m_insertTemplates.Count; i++)
+
+            for (int i = 0; i < commandTemplate.Template.Count; i++)
             {
-                string[] templateData = this.m_insertTemplates[i].Split(':');
-                if(templateData.Length > 0)
+                string[] templateData = commandTemplate.Template[i].Split(':');
+                if (templateData.Length > 0)
                 {
-                    if(templateData[0] == specyficType)
+                    if (templateData[0] == specyficType)
                     {
-                        result.Add(templateData[1] + ":" + templateData[2]);
+                        result.Add(commandTemplate.Template[i].Replace(templateData[0] + ":", ""));
                     }
                 }
             }

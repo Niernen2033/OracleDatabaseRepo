@@ -259,8 +259,11 @@ namespace OracleDatabaseProject
             //DebugManager.Instance.AddLog(status.ToString(), this, true);
             //this.SendDatabase();
             BaseOperations baseOperations = new BaseOperations();
-            string a = baseOperations.GetRandomSelectCommand(TaskOwner.STUDENT);
-            this.richTextBox1.Text += a + "\n";
+            List<string> a = baseOperations.GetRandomCommand(TaskJobType.INSERT, TaskOwner.TEACHER);
+            for (int i = 0; i < a.Count; i++)
+            {
+                this.richTextBox1.Text += a[i] + "\n";
+            }
             this.listBox1.Items.Clear();
             this.EnableButtons(this.button2);
         }
@@ -279,10 +282,13 @@ namespace OracleDatabaseProject
                 dBTaskManager.LoadConnectionData(connectionData);
             }
 
+            Random random = new Random();
             DatabaseManager databaseManager = new DatabaseManager();
             for (int i = 0; i < 50; i++)
             {
-                DBTask dBTask = new DBTask(TaskOwner.STUDENT);
+                //TaskOwner taskOwner = (TaskOwner)random.Next(0, Enum.GetNames(typeof(TaskOwner)).Length);
+                TaskOwner taskOwner = TaskOwner.STUDENT;
+                DBTask dBTask = new DBTask(taskOwner);
                 dBTask.GenerateRandomTask();
                 dBTaskManager.AddTask(dBTask);
             }

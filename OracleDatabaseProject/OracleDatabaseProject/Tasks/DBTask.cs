@@ -11,7 +11,6 @@ namespace OracleDatabaseProject
         ADMIN,
         STUDENT,
         TEACHER,
-        ALL,
     }
 
     enum TaskJobType
@@ -26,14 +25,14 @@ namespace OracleDatabaseProject
     {
         public TaskOwner TaskOwner { get; set; }
         public TaskJobType TaskJobType { get; set; }
-        public string Job { get; set; }
+        public List<string> Jobs { get; set; }
         public int FreezeTime { get; set; }
         public int ChanceForRollback { get; set; }
 
         public DBTask(DBTask dBTask)
         {
             this.TaskOwner = dBTask.TaskOwner;
-            this.Job = string.Copy(dBTask.Job);
+            this.Jobs = new List<string>(dBTask.Jobs);
             this.FreezeTime = dBTask.FreezeTime;
             this.TaskJobType = dBTask.TaskJobType;
             this.ChanceForRollback = dBTask.ChanceForRollback;
@@ -56,7 +55,7 @@ namespace OracleDatabaseProject
         public DBTask(TaskOwner taskOwner)
         {
             this.TaskOwner = taskOwner;
-            this.Job = string.Empty;
+            this.Jobs = new List<string>();
             this.FreezeTime = 0;
             this.TaskJobType = TaskJobType.NONE;
             this.ChanceForRollback = 0;
@@ -64,26 +63,64 @@ namespace OracleDatabaseProject
 
         private void GenerateRadnomAdminTask()
         {
-
+            BaseOperations baseOperations = new BaseOperations();
+            Random random = new Random();
+            this.FreezeTime = this.GetFreezeTimeInSec(random.Next(0, 30));
+            this.ChanceForRollback = 0;
+            List<TaskJobType> possibleJobs = new List<TaskJobType>()
+            {
+                TaskJobType.SELECT,
+                TaskJobType.UPDATE,
+                TaskJobType.INSERT
+            };
+            TaskJobType jobType = possibleJobs[random.Next(0, possibleJobs.Count)];
+            this.TaskJobType = jobType;
+            bool jobMode = this.GetJobModeBasedOnType(jobType);
+            this.Jobs = baseOperations.GetRandomCommand(jobType, TaskOwner.ADMIN, jobMode);
         }
 
         private void GenerateRadnomStudentTask()
         {
+            BaseOperations baseOperations = new BaseOperations();
             Random random = new Random();
-            this.TaskJobType = TaskJobType.SELECT;
             this.FreezeTime = this.GetFreezeTimeInSec(random.Next(0, 30));
             this.ChanceForRollback = 0;
-            List<string> possibleJobs = new List<string>()
+            List<TaskJobType> possibleJobs = new List<TaskJobType>()
             {
-                "SELECT * FROM Marks WHERE ",
-                "SELECT"
+                TaskJobType.SELECT
             };
-            this.Job = possibleJobs[random.Next(0, possibleJobs.Count)];
+            TaskJobType jobType = possibleJobs[random.Next(0, possibleJobs.Count)];
+            this.TaskJobType = jobType;
+            bool jobMode = this.GetJobModeBasedOnType(jobType);
+            this.Jobs = baseOperations.GetRandomCommand(jobType, TaskOwner.STUDENT, jobMode);
+        }
+
+        private bool GetJobModeBasedOnType(TaskJobType jobType)
+        {
+            bool result = false;
+            if(jobType == TaskJobType.INSERT)
+            {
+                result = true;
+            }
+            return result;
         }
 
         private void GenerateRadnomTeacherTask()
         {
-
+            BaseOperations baseOperations = new BaseOperations();
+            Random random = new Random();
+            this.FreezeTime = this.GetFreezeTimeInSec(random.Next(0, 30));
+            this.ChanceForRollback = 0;
+            List<TaskJobType> possibleJobs = new List<TaskJobType>()
+            {
+                TaskJobType.SELECT,
+                TaskJobType.UPDATE,
+                TaskJobType.INSERT
+            };
+            TaskJobType jobType = possibleJobs[random.Next(0, possibleJobs.Count)];
+            this.TaskJobType = jobType;
+            bool jobMode = this.GetJobModeBasedOnType(jobType);
+            this.Jobs = baseOperations.GetRandomCommand(jobType, TaskOwner.TEACHER, jobMode);
         }
 
         public void GenerateRandomTask()

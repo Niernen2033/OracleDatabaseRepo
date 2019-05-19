@@ -166,6 +166,7 @@ namespace OracleDatabaseProject
                 this.RawArguments = string.Copy(commandBuilder.RawArguments);
             }
             this.m_commandArguments = new List<CommandArgument>(commandBuilder.m_commandArguments);
+            this.m_argumentTypeIdentifiers = new Dictionary<CommArgumentType, string>();
             this.SetAllDefaultArgumentTypeIdentifiers();
         }
     }
