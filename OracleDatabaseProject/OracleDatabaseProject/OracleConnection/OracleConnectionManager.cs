@@ -130,7 +130,7 @@ namespace OracleDatabaseProject
                     cmd.Transaction = this.m_transaction;
                     DebugManager.Instance.AddLog("Executing: " + comm, this);
                     cmd.CommandText = comm;
-                    if(commType == TaskJobType.SELECT)
+                    if(commType == TaskJobType.NONE)
                     {
                         this.LastCommandResult = cmd.ExecuteNonQuery();
                     }

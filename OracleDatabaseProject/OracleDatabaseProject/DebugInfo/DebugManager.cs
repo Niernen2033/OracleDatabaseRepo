@@ -204,7 +204,7 @@ namespace OracleDatabaseProject
 #endif //DEBUG_MANAGER
         }
 
-        public void EnableLogsSaving(string savePath, ushort logsCountPerSave = 1)
+        public void EnableAndSetLogsSaving(string savePath, ushort logsCountPerSave = 1)
         {
 #if DEBUG_MANAGER
             this.m_is_saving_enabled = true;
@@ -220,7 +220,25 @@ namespace OracleDatabaseProject
 #endif //DEBUG_MANAGER
         }
 
-        public void DisableLogsSaving()
+        public void EnableSaving()
+        {
+#if DEBUG_MANAGER
+            this.m_is_saving_enabled = true;
+#else //DEBUG_MANAGER
+            return;
+#endif //DEBUG_MANAGER
+        }
+
+        public void DisableSaving()
+        {
+#if DEBUG_MANAGER
+            this.m_is_saving_enabled = false;
+#else //DEBUG_MANAGER
+            return;
+#endif //DEBUG_MANAGER
+        }
+
+        public void DisableAndClearLogsSaving()
         {
 #if DEBUG_MANAGER
             this.m_is_saving_enabled = false;

@@ -19,7 +19,7 @@ namespace OracleDatabaseProject
         {
             InitializeComponent();
             DebugManager.Instance.Enable();
-            DebugManager.Instance.EnableLogsSaving(GlobalVariables.DebugInfoLogsDirectory 
+            DebugManager.Instance.EnableAndSetLogsSaving(GlobalVariables.DebugInfoLogsDirectory 
                 + "debugLog[" + DateTime.Today.ToLongDateString() + "][" 
                 + DateTime.Now.ToLongTimeString().Replace(":","-") + "].txt", 1);
 
@@ -28,7 +28,8 @@ namespace OracleDatabaseProject
             this.FormClosing += Form1_FormClosing;
             DebugManager.Instance.InfoLogAdded += Instance_InfoLogAdded;
 
-            this.button3.Enabled = true;
+            this.button3.Enabled = true; //thread
+            this.button2.Enabled = false; //send
         }
 
         private void Instance_InfoLogAdded(object sender, DebugEventArgs e)
@@ -46,9 +47,14 @@ namespace OracleDatabaseProject
 
         private void DisableButtons(params Button[] buttons)
         {
-            foreach(Button button in buttons)
+            DebugManager.Instance.EnableSaving();
+            foreach (Button button in buttons)
             {
                 button.Enabled = false;
+                if (button == this.button2)
+                {
+                    DebugManager.Instance.DisableSaving();
+                }
             }
         }
 
@@ -236,16 +242,10 @@ namespace OracleDatabaseProject
         private void button2_Click(object sender, EventArgs e)
         {
             this.DisableButtons(this.button2);
-            //DatabaseManager databaseManager = new DatabaseManager();
-            //bool status = databaseManager.GenerateDatabase(4000, 7000, true, true);
-            //DebugManager.Instance.AddLog(status.ToString(), this, true);
-            //this.SendDatabase();
-
-            if (this.connectionManager.ExecuteCommand(Students.GetSelectString(), TaskJobType.INSERT))
-            {
-                this.listBox1.Items.Add(this.connectionManager.LastCommandResult);
-            }
-            //this.listBox1.Items.Clear();
+            DatabaseManager databaseManager = new DatabaseManager();
+            bool status = databaseManager.LoadDatabaseFromFiles();
+            DebugManager.Instance.AddLog("Database load status: " + status.ToString(), this, true);
+            this.SendDatabase();
             this.EnableButtons(this.button2);
         }
 
@@ -275,7 +275,7 @@ namespace OracleDatabaseProject
             }
 
             DebugManager.Instance.AddLog("=======TASKS START========", this, true);
-            //await dBTaskManager.StartAllTasksAsync();
+            await dBTaskManager.StartAllTasksAsync();
 
             this.EnableButtons(this.button3);
         }
