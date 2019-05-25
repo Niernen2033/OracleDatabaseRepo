@@ -26,6 +26,11 @@ namespace OracleDatabaseProject
             this.group_id = 0;
         }
 
+        public static string GetSelectString()
+        {
+            return "SELECT * FROM Subjects_Teachers";
+        }
+
         public override string ToString()
         {
             return this.subject_id + ";" + this.teacher_id + ";" + this.group_id;

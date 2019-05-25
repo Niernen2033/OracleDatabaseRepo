@@ -78,5 +78,10 @@ namespace OracleDatabaseProject
             }
             return result;
         }
+
+        public static string GetSelectString()
+        {
+            return "SELECT * FROM Accounts";
+        }
     }
 }

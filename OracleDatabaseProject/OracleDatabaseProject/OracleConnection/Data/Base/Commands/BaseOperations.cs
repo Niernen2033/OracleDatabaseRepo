@@ -13,10 +13,12 @@ namespace OracleDatabaseProject
         private CommandTemplate m_insertTemplates;
         private CommandTemplate m_updateTemplates;
         private CommandTemplate m_selectTemplates;
+
         private Random m_random;
         private CommandBuilder m_commandBuilder;
         private DatabaseData m_realDatabaseData;
         private DatabaseManager m_databaseManager;
+        private OracleConnectionManager m_connectionManager;
         private bool m_isRealDatabaseLoaded;
 
         public BaseOperations()
@@ -26,6 +28,7 @@ namespace OracleDatabaseProject
             this.m_selectTemplates = new CommandTemplate(TaskJobType.SELECT);
             this.m_databaseManager = new DatabaseManager();
             this.m_realDatabaseData = new DatabaseData();
+            this.m_connectionManager = new OracleConnectionManager(true);
             this.m_isRealDatabaseLoaded = false;
 
 
@@ -33,7 +36,7 @@ namespace OracleDatabaseProject
             this.m_commandBuilder = new CommandBuilder();
         }
 
-        private object GetItemFromDatabase(CommandArgument commandArgument, bool random)
+        private object GetItemFromDatabase(CommandArgument commandArgument, TaskJobType jobType, bool random)
         {
             string argumentTypeIdentifier = this.m_commandBuilder.GetArgumentTypeIdentifier(commandArgument.ArgumentType);
             string clearCommandArguments = commandArgument.ArgumentName.Replace(argumentTypeIdentifier, "").Replace("{", "").Replace("}", "");
@@ -46,9 +49,16 @@ namespace OracleDatabaseProject
 
             if (random)
             {
-                if (!this.m_databaseManager.GenerateDatabase(2, 3, false, false))
+                while (true)
                 {
-                    return null;
+                    if (!this.m_databaseManager.GenerateDatabase(20, 30, false, false))
+                    {
+                        return null;
+                    }
+                    if(this.m_databaseManager.DatabaseData.Teachers.Count != 0)
+                    {
+                        break;
+                    }
                 }
             }
 
@@ -67,6 +77,21 @@ namespace OracleDatabaseProject
                         if (random)
                         {
                             baseItem = this.m_databaseManager.DatabaseData.Accounts[0];
+                            Accounts item = (Accounts)baseItem;
+                            if (jobType == TaskJobType.INSERT)
+                            {
+                                if(this.m_connectionManager.ExecuteCommand(Accounts.GetSelectString(), jobType))
+                                {
+                                    item.account_id = this.m_connectionManager.LastCommandResult + 1;
+                                }
+                            }
+                            else
+                            {
+                                if (this.m_connectionManager.ExecuteCommand(Accounts.GetSelectString(), jobType))
+                                {
+                                    item.account_id = this.m_random.Next(0, this.m_connectionManager.LastCommandResult);
+                                }
+                            }
                         }
                         else
                         {
@@ -85,6 +110,14 @@ namespace OracleDatabaseProject
                         if (random)
                         {
                             baseItem = this.m_databaseManager.DatabaseData.Groups[0];
+                            if (jobType == TaskJobType.INSERT)
+                            {
+                                Groups item = (Groups)baseItem;
+                                if (this.m_connectionManager.ExecuteCommand(Groups.GetSelectString(), jobType))
+                                {
+                                    item.group_id = this.m_connectionManager.LastCommandResult + 1;
+                                }
+                            }
                         }
                         else
                         {
@@ -103,6 +136,25 @@ namespace OracleDatabaseProject
                         if (random)
                         {
                             baseItem = this.m_databaseManager.DatabaseData.Marks[0];
+                            Marks item = (Marks)baseItem;
+                            if (jobType == TaskJobType.INSERT)
+                            {
+                                if (this.m_connectionManager.ExecuteCommand(Marks.GetSelectString(), jobType))
+                                {
+                                    item.mark_id = this.m_connectionManager.LastCommandResult + 1;
+                                    if (this.m_connectionManager.ExecuteCommand(Students.GetSelectString(), jobType))
+                                    {
+                                        item.student_id = this.m_random.Next(0, this.m_connectionManager.LastCommandResult);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (this.m_connectionManager.ExecuteCommand(Marks.GetSelectString(), jobType))
+                                {
+                                    item.mark_id = this.m_random.Next(0, this.m_connectionManager.LastCommandResult);
+                                }
+                            }
                         }
                         else
                         {
@@ -121,6 +173,14 @@ namespace OracleDatabaseProject
                         if (random)
                         {
                             baseItem = this.m_databaseManager.DatabaseData.Students[0];
+                            if (jobType == TaskJobType.INSERT)
+                            {
+                                Students item = (Students)baseItem;
+                                if (this.m_connectionManager.ExecuteCommand(Students.GetSelectString(), jobType))
+                                {
+                                    item.student_id = this.m_connectionManager.LastCommandResult + 1;
+                                }
+                            }
                         }
                         else
                         {
@@ -139,6 +199,14 @@ namespace OracleDatabaseProject
                         if (random)
                         {
                             baseItem = this.m_databaseManager.DatabaseData.Subjects[0];
+                            if (jobType == TaskJobType.INSERT)
+                            {
+                                Subjects item = (Subjects)baseItem;
+                                if (this.m_connectionManager.ExecuteCommand(Subjects.GetSelectString(), jobType))
+                                {
+                                    item.subject_id = this.m_connectionManager.LastCommandResult + 1;
+                                }
+                            }
                         }
                         else
                         {
@@ -175,6 +243,14 @@ namespace OracleDatabaseProject
                         if (random)
                         {
                             baseItem = this.m_databaseManager.DatabaseData.Teachers[0];
+                            if (jobType == TaskJobType.INSERT)
+                            {
+                                Teachers item = (Teachers)baseItem;
+                                if (this.m_connectionManager.ExecuteCommand(Teachers.GetSelectString(), jobType))
+                                {
+                                    item.teacher_id = this.m_connectionManager.LastCommandResult + 1;
+                                }
+                            }
                         }
                         else
                         {
@@ -238,7 +314,7 @@ namespace OracleDatabaseProject
                     }
                     if(tempArgumentValue == null)
                     {
-                        tempArgumentValue = this.GetItemFromDatabase(this.m_commandBuilder.CommandArguments[j], random);
+                        tempArgumentValue = this.GetItemFromDatabase(this.m_commandBuilder.CommandArguments[j], jobType, random);
                     }
                     if (!this.m_commandBuilder.SetArgument(tempArgumentId, tempArgumentValue))
                     {

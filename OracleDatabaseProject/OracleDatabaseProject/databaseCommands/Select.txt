@@ -1,11 +1,4 @@
 student:SELECT Marks.mark_id, Marks.mark, Marks.create_date, Subjects.title FROM (Marks INNER JOIN Subjects ON Marks.subject_id = Subjects.subject_id) WHERE Marks.student_id = {int_Marks.student_id}:{int_Marks.student_id}
 student:SELECT Teachers.first_name, Teachers.last_name, Subjects.title FROM ((Teachers INNER JOIN Subjects_Teachers ON Teachers.teacher_id = Subjects_Teachers.teacher_id)INNER JOIN Subjects ON Subjects.subject_id = Subjects_Teachers.subject_id) WHERE Subjects.title = {str_Subjects.title}:{str_Subjects.title}
-
-
-#
-#                                statement = @"SELECT Player.Player_ID, Player.Login, 
-#                                   Accounts.NickName, 
-#                                    SUM(PersonalAccount.Gold) as Gold, PersonalAccount.Combat, PersonalAccount.Kills, PersonalAccount.Deaths
-#                                    FROM ((Player
-#                                    INNER JOIN Accounts ON Player.Player_ID = Accounts.Player_ID)
-#                                    INNER JOIN PersonalAccount ON PersonalAccount.Id = Accounts.Account_id) GROUP BY Player.Player_ID";
+admin:SELECT * FROM Accounts WHERE account_id = {int_Accounts.account_id}:{int_Accounts.account_id}
+teacher: SELECT * FROM Marks WHERE student_id = {int_Marks.student_id}:{int_Marks.student_id}

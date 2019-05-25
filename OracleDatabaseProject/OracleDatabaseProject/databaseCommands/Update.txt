@@ -1,0 +1,3 @@
+teacher:UPDATE Marks SET mark = {int_Marks.mark} WHERE mark_id = {int_Marks.mark_id}:{int_Marks.mark};{int_Marks.mark_id}
+student:UPDATE Accounts SET password = {str_Accounts.password} WHERE account_id =  {int_Accounts.account_id}:{str_Accounts.password};{int_Accounts.account_id}
+teacher:UPDATE Accounts SET password = {str_Accounts.password} WHERE account_id =  {int_Accounts.account_id}:{str_Accounts.password};{int_Accounts.account_id}

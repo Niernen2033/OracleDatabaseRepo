@@ -28,25 +28,7 @@ namespace OracleDatabaseProject
             this.FormClosing += Form1_FormClosing;
             DebugManager.Instance.InfoLogAdded += Instance_InfoLogAdded;
 
-            /*
-            Dictionary<int, int> numbers = new Dictionary<int, int>();
-            Random a = new Random();
-            RandomGauss b = new RandomGauss();
-            for(int i=0; i<10000; i++)
-            {
-                int numb = (int)(b.Next());
-                if(!numbers.ContainsKey(numb))
-                {
-                    numbers.Add(numb, 1);
-                }
-                else
-                {
-                    numbers[numb]++;
-                }
-            }
-            DataManager.Save<int, int>(@"C:\Users\Michal\Desktop\rozklad.txt", numbers);
-            this.listBox1.Items.Add("DONE");
-            */
+            this.button3.Enabled = true;
         }
 
         private void Instance_InfoLogAdded(object sender, DebugEventArgs e)
@@ -148,7 +130,7 @@ namespace OracleDatabaseProject
             this.DisableButtons(this.button1);
             foreach (string command in commands)
             {
-                bool status = await this.connectionManager.ExecuteCommandAsync(command);
+                bool status = await this.connectionManager.ExecuteCommandAsync(command, TaskJobType.NONE);
                 DebugManager.Instance.AddLog(status.ToString(), this, true);
             }
             this.EnableButtons(this.button1);
@@ -168,7 +150,7 @@ namespace OracleDatabaseProject
             foreach (Groups item in databaseManager.DatabaseData.Groups)
             {
                 string comm = item.GetInsertString();
-                commandStatus = await this.connectionManager.ExecuteCommandAsync(comm);
+                commandStatus = await this.connectionManager.ExecuteCommandAsync(comm, TaskJobType.NONE);
                 if (!commandStatus)
                 {
                     DebugManager.Instance.AddLog("exc command fail", this);
@@ -180,7 +162,7 @@ namespace OracleDatabaseProject
             foreach (Subjects item in databaseManager.DatabaseData.Subjects)
             {
                 string comm = item.GetInsertString();
-                commandStatus = await this.connectionManager.ExecuteCommandAsync(comm);
+                commandStatus = await this.connectionManager.ExecuteCommandAsync(comm, TaskJobType.NONE);
                 if (!commandStatus)
                 {
                     DebugManager.Instance.AddLog("exc command fail", this);
@@ -192,7 +174,7 @@ namespace OracleDatabaseProject
             foreach (Accounts item in databaseManager.DatabaseData.Accounts)
             {
                 string comm = item.GetInsertString();
-                commandStatus = await this.connectionManager.ExecuteCommandAsync(comm);
+                commandStatus = await this.connectionManager.ExecuteCommandAsync(comm, TaskJobType.NONE);
                 if (!commandStatus)
                 {
                     DebugManager.Instance.AddLog("exc command fail", this);
@@ -204,7 +186,7 @@ namespace OracleDatabaseProject
             foreach (Teachers item in databaseManager.DatabaseData.Teachers)
             {
                 string comm = item.GetInsertString();
-                commandStatus = await this.connectionManager.ExecuteCommandAsync(comm);
+                commandStatus = await this.connectionManager.ExecuteCommandAsync(comm, TaskJobType.NONE);
                 if (!commandStatus)
                 {
                     DebugManager.Instance.AddLog("exc command fail", this);
@@ -216,7 +198,7 @@ namespace OracleDatabaseProject
             foreach (Students item in databaseManager.DatabaseData.Students)
             {
                 string comm = item.GetInsertString();
-                commandStatus = await this.connectionManager.ExecuteCommandAsync(comm);
+                commandStatus = await this.connectionManager.ExecuteCommandAsync(comm, TaskJobType.NONE);
                 if (!commandStatus)
                 {
                     DebugManager.Instance.AddLog("exc command fail", this);
@@ -228,7 +210,7 @@ namespace OracleDatabaseProject
             foreach (Marks item in databaseManager.DatabaseData.Marks)
             {
                 string comm = item.GetInsertString();
-                commandStatus = await this.connectionManager.ExecuteCommandAsync(comm);
+                commandStatus = await this.connectionManager.ExecuteCommandAsync(comm, TaskJobType.NONE);
                 if (!commandStatus)
                 {
                     DebugManager.Instance.AddLog("exc command fail", this);
@@ -240,7 +222,7 @@ namespace OracleDatabaseProject
             foreach (Subjects_Teachers item in databaseManager.DatabaseData.Subjects_Teachers)
             {
                 string comm = item.GetInsertString();
-                commandStatus = await this.connectionManager.ExecuteCommandAsync(comm);
+                commandStatus = await this.connectionManager.ExecuteCommandAsync(comm, TaskJobType.NONE);
                 if (!commandStatus)
                 {
                     DebugManager.Instance.AddLog("exc command fail", this);
@@ -258,13 +240,12 @@ namespace OracleDatabaseProject
             //bool status = databaseManager.GenerateDatabase(4000, 7000, true, true);
             //DebugManager.Instance.AddLog(status.ToString(), this, true);
             //this.SendDatabase();
-            BaseOperations baseOperations = new BaseOperations();
-            List<string> a = baseOperations.GetRandomCommand(TaskJobType.INSERT, TaskOwner.TEACHER);
-            for (int i = 0; i < a.Count; i++)
+
+            if (this.connectionManager.ExecuteCommand(Students.GetSelectString(), TaskJobType.INSERT))
             {
-                this.richTextBox1.Text += a[i] + "\n";
+                this.listBox1.Items.Add(this.connectionManager.LastCommandResult);
             }
-            this.listBox1.Items.Clear();
+            //this.listBox1.Items.Clear();
             this.EnableButtons(this.button2);
         }
 
@@ -286,14 +267,15 @@ namespace OracleDatabaseProject
             DatabaseManager databaseManager = new DatabaseManager();
             for (int i = 0; i < 50; i++)
             {
-                //TaskOwner taskOwner = (TaskOwner)random.Next(0, Enum.GetNames(typeof(TaskOwner)).Length);
-                TaskOwner taskOwner = TaskOwner.STUDENT;
+                TaskOwner taskOwner = (TaskOwner)random.Next(0, Enum.GetNames(typeof(TaskOwner)).Length);
+                //TaskOwner taskOwner = TaskOwner.STUDENT;
                 DBTask dBTask = new DBTask(taskOwner);
                 dBTask.GenerateRandomTask();
                 dBTaskManager.AddTask(dBTask);
             }
 
-            await dBTaskManager.StartAllTasksAsync();
+            DebugManager.Instance.AddLog("=======TASKS START========", this, true);
+            //await dBTaskManager.StartAllTasksAsync();
 
             this.EnableButtons(this.button3);
         }

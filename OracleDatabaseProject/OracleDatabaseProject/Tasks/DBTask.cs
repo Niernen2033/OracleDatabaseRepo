@@ -32,7 +32,14 @@ namespace OracleDatabaseProject
         public DBTask(DBTask dBTask)
         {
             this.TaskOwner = dBTask.TaskOwner;
-            this.Jobs = new List<string>(dBTask.Jobs);
+            if (dBTask.Jobs != null)
+            {
+                this.Jobs = new List<string>(dBTask.Jobs);
+            }
+            else
+            {
+                this.Jobs = new List<string>();
+            }
             this.FreezeTime = dBTask.FreezeTime;
             this.TaskJobType = dBTask.TaskJobType;
             this.ChanceForRollback = dBTask.ChanceForRollback;
@@ -87,7 +94,8 @@ namespace OracleDatabaseProject
             this.ChanceForRollback = 0;
             List<TaskJobType> possibleJobs = new List<TaskJobType>()
             {
-                TaskJobType.SELECT
+                TaskJobType.SELECT,
+                TaskJobType.UPDATE
             };
             TaskJobType jobType = possibleJobs[random.Next(0, possibleJobs.Count)];
             this.TaskJobType = jobType;

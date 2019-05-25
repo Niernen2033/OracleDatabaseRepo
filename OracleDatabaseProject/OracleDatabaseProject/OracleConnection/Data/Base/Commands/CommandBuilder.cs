@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 namespace OracleDatabaseProject
 {
     enum CommArgumentType { NONE = -1, INTEGER, STRING, DATE }
+
     class CommandBuilder
     {
         public string RawCommand { get; private set; }
@@ -46,30 +47,33 @@ namespace OracleDatabaseProject
             return string.Copy(this.m_argumentTypeIdentifiers[argumentType]);
         }
 
+        private CommArgumentType DetermineArgumentType(string argument)
+        {
+            CommArgumentType result = CommArgumentType.NONE;
+            if (argument.Contains(this.m_argumentTypeIdentifiers[CommArgumentType.INTEGER]))
+            {
+                result = CommArgumentType.INTEGER;
+            }
+            else if (argument.Contains(this.m_argumentTypeIdentifiers[CommArgumentType.STRING]))
+            {
+                result = CommArgumentType.STRING;
+            }
+            else if (argument.Contains(this.m_argumentTypeIdentifiers[CommArgumentType.DATE]))
+            {
+                result = CommArgumentType.DATE;
+            }
+            return result;
+        }
+
         private void AnaliseRawData()
         {
             this.m_commandArguments.Clear();
             string[] tempArguments = this.RawArguments.Split(';');
             for (int i = 0; i < tempArguments.Length; i++)
             {
-                string subArgument = tempArguments[i];
+                string subArgument = string.Copy(tempArguments[i]);
                 CommandArgument argument = new CommandArgument(i);
-                if (subArgument.Contains(this.m_argumentTypeIdentifiers[CommArgumentType.INTEGER]))
-                {
-                    argument.SetArgumentInfo(subArgument, CommArgumentType.INTEGER);
-                }
-                else if (subArgument.Contains(this.m_argumentTypeIdentifiers[CommArgumentType.STRING]))
-                {
-                    argument.SetArgumentInfo(subArgument, CommArgumentType.STRING);
-                }
-                else if (subArgument.Contains(this.m_argumentTypeIdentifiers[CommArgumentType.DATE]))
-                {
-                    argument.SetArgumentInfo(subArgument, CommArgumentType.DATE);
-                }
-                else
-                {
-                    argument.SetArgumentInfo(subArgument);
-                }
+                argument.SetArgumentInfo(subArgument, this.DetermineArgumentType(subArgument));
                 this.m_commandArguments.Add(argument);
             }
         }
@@ -171,6 +175,7 @@ namespace OracleDatabaseProject
         }
     }
 
+
     class CommandArgument
     {
         public int ArgumentId { get; private set; }
@@ -185,12 +190,8 @@ namespace OracleDatabaseProject
             this.ArgumentName = argumentName;
         }
 
-        public bool SetArgument(object argumentValue, CommArgumentType argumentType = CommArgumentType.NONE)
+        public bool SetArgument(object argumentValue)
         {
-            if(argumentType != CommArgumentType.NONE)
-            {
-                this.ArgumentType = argumentType;
-            }
             if(this.ArgumentType == CommArgumentType.NONE || this.ArgumentName == string.Empty)
             {
                 return false;

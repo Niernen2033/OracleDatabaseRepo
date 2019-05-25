@@ -23,6 +23,11 @@ namespace OracleDatabaseProject
             this.title = string.Empty;
         }
 
+        public static string GetSelectString()
+        {
+            return "SELECT * FROM Subjects";
+        }
+
         public override string ToString()
         {
             return this.subject_id + ";" + this.title;

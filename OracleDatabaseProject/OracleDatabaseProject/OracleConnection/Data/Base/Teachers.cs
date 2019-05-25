@@ -32,6 +32,11 @@ namespace OracleDatabaseProject
             this.account_id = 0;
         }
 
+        public static string GetSelectString()
+        {
+            return "SELECT * FROM Teachers";
+        }
+
         public override string ToString()
         {
             return this.teacher_id + ";" + this.first_name + ";" + this.last_name + ";" +

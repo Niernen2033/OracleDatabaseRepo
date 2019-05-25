@@ -16,6 +16,7 @@ namespace OracleDatabaseProject
         private OracleConnection m_connection;
         private OracleConnectionData m_connectionData;
         private OracleTransaction m_transaction;
+        public int LastCommandResult { get; private set; }
 
         public bool IsOpen
         {
@@ -49,6 +50,7 @@ namespace OracleDatabaseProject
             this.m_connection = new OracleConnection();
             this.m_connectionData = null;
             this.m_transaction = null;
+            this.LastCommandResult = 0;
             //DebugManager.Instance.RegisterToDisabledList(this);
             if(trySetDefaultConn)
             {
@@ -108,6 +110,8 @@ namespace OracleDatabaseProject
             {
                 return false;
             }
+
+            this.LastCommandResult = 0;
             if (this.IsBusy)
             {
                 this.BusyStatusWait(maxExecuteTimeInSec);
@@ -119,7 +123,7 @@ namespace OracleDatabaseProject
 
             using (OracleCommand cmd = this.m_connection.CreateCommand())
             {
-                int result = 0;
+                this.LastCommandResult = 0;
                 try
                 {
                     cmd.Connection = this.m_connection;
@@ -128,7 +132,7 @@ namespace OracleDatabaseProject
                     cmd.CommandText = comm;
                     if(commType == TaskJobType.SELECT)
                     {
-                        result = cmd.ExecuteNonQuery();
+                        this.LastCommandResult = cmd.ExecuteNonQuery();
                     }
                     else
                     {
@@ -137,7 +141,7 @@ namespace OracleDatabaseProject
                         {
                             while (reader.Read())
                             {
-                                result++;
+                                this.LastCommandResult++;
                             }
                         }
                     }
@@ -147,7 +151,7 @@ namespace OracleDatabaseProject
                     DebugManager.Instance.AddLog(exc.Message, this);
                     return false;
                 }
-                DebugManager.Instance.AddLog("Command result: " + result, this, true);
+                DebugManager.Instance.AddLog("Command result: " + this.LastCommandResult, this, true);
             }
 
             return true;
@@ -267,10 +271,11 @@ namespace OracleDatabaseProject
             }
         }
 
-        public bool ExecuteCommand(string comm, ushort maxExecuteTimeInSec = 0)
+        public bool ExecuteCommand(string comm, TaskJobType commType, ushort maxExecuteTimeInSec = 0)
         {
             bool isThisFunctionOpenConnection = false;
-            if(!this.IsOpen)
+            this.LastCommandResult = 0;
+            if (!this.IsOpen)
             {
                 if(this.m_connectionData == null)
                 {
@@ -300,13 +305,26 @@ namespace OracleDatabaseProject
                 }
             }
 
-            int result = 0;
             DebugManager.Instance.AddLog("Executing: " + comm, this);
             try
             {
                 using (OracleCommand cmd = new OracleCommand(comm, this.m_connection))
                 {
-                    result = cmd.ExecuteNonQuery();
+                    if (commType == TaskJobType.NONE)
+                    {
+                        this.LastCommandResult = cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        OracleDataReader reader = cmd.ExecuteReader();
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                this.LastCommandResult++;
+                            }
+                        }
+                    }
                 }
             }
             catch(Exception exc)
@@ -318,7 +336,7 @@ namespace OracleDatabaseProject
                 }
                 return false;
             }
-            DebugManager.Instance.AddLog("Command result: " + result, this, true);
+            DebugManager.Instance.AddLog("Command result: " + this.LastCommandResult, this, true);
             if (isThisFunctionOpenConnection)
             {
                 DebugManager.Instance.AddLog("ExecuteCommand : close connection", this);
@@ -328,9 +346,9 @@ namespace OracleDatabaseProject
             return true;
         }
 
-        public Task<bool> ExecuteCommandAsync(string comm, ushort maxExecuteTimeInSec = 0)
+        public Task<bool> ExecuteCommandAsync(string comm, TaskJobType commType, ushort maxExecuteTimeInSec = 0)
         {
-            return Task.Run(() => this.ExecuteCommand(comm, maxExecuteTimeInSec));
+            return Task.Run(() => this.ExecuteCommand(comm, commType, maxExecuteTimeInSec));
         }
 
         public void Dispose()
