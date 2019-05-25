@@ -265,10 +265,9 @@ namespace OracleDatabaseProject
 
             Random random = new Random();
             DatabaseManager databaseManager = new DatabaseManager();
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 120; i++)
             {
                 TaskOwner taskOwner = (TaskOwner)random.Next(0, Enum.GetNames(typeof(TaskOwner)).Length);
-                //TaskOwner taskOwner = TaskOwner.STUDENT;
                 DBTask dBTask = new DBTask(taskOwner);
                 dBTask.GenerateRandomTask();
                 dBTaskManager.AddTask(dBTask);

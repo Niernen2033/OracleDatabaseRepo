@@ -23,8 +23,8 @@ namespace OracleDatabaseProject
 
     class DBTask
     {
-        public TaskOwner TaskOwner { get; set; }
-        public TaskJobType TaskJobType { get; set; }
+        public TaskOwner TaskOwner { get; set; } // ADMIN, STUDENT, TEACHER
+        public TaskJobType TaskJobType { get; set; } // SELECT, INSERT, UPDATE
         public List<string> Jobs { get; set; }
         public int FreezeTime { get; set; }
         public int ChanceForRollback { get; set; }
